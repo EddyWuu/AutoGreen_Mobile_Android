@@ -1,16 +1,68 @@
 [versions]
+activityComposeVersion = "1.4.0"
 agp = "8.4.1"
+androidxMaterial = "1.6.8"
+androidxUi = "1.6.8"
+androidxUiToolingPreview = "1.6.8"
+converterGson = "2.9.0"
+firebaseBom = "33.1.1"
+gson = "2.10.1"
+gsonVersion = "2.8.9"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.3"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+lifecycleRuntimeKtx = "2.8.1"
 activityCompose = "1.9.0"
 composeBom = "2023.08.00"
+material = "1.6.7"
+material3 = "1.2.0-alpha03"
+material3Version = "1.2.1"
+materialVersion = "1.4.3"
+navigationComposeVersion = "2.6.1"
+navigationUiKtx = "2.7.7"
+navigationCompose = "2.7.7"
+legacySupportV13 = "1.0.0"
+retrofit = "2.9.0"
+ui = "1.6.7"
+uiGraphics = "1.6.8"
+uiTestJunit4 = "1.4.3"
+uiTestJunit4Version = "1.6.8"
+uiTestManifest = "1.4.3"
+uiTestManifestVersion = "1.6.8"
+uiTooling = "1.4.3"
+uiToolingPreview = "1.6.7"
+firebaseFirestoreKtx = "25.0.0"
+uiToolingPreviewVersion = "1.4.3"
+uiToolingVersion = "1.6.8"
+uiVersion = "1.4.3"
+navigationCommonKtx = "2.7.7"
+navigationRuntimeKtx = "2.7.7"
 
 [libraries]
+androidx-activity-compose-v140 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
+androidx-material-v143 = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
+androidx-material-v168 = { module = "androidx.compose.material:material", version.ref = "androidxMaterial" }
+androidx-material3-v121 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
+androidx-navigation-compose-v261 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationUiKtx" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-ui-graphics-v168 = { module = "androidx.compose.ui:ui-graphics", version.ref = "uiGraphics" }
+androidx-ui-test-junit4-v168 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4Version" }
+androidx-ui-test-manifest-v168 = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifestVersion" }
+androidx-ui-tooling-preview-v143 = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreviewVersion" }
+androidx-ui-tooling-preview-v168 = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidxUiToolingPreview" }
+androidx-ui-tooling-v168 = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiToolingVersion" }
+androidx-ui-v143 = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
+androidx-ui-v168 = { module = "androidx.compose.ui:ui", version.ref = "androidxUi" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+gson-v289 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -24,6 +76,19 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-legacy-support-v13 = { group = "androidx.legacy", name = "legacy-support-v13", version.ref = "legacySupportV13" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+ui-graphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "uiVersion" }
+ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
