@@ -39,6 +39,7 @@ uiToolingVersion = "1.6.8"
 uiVersion = "1.4.3"
 navigationCommonKtx = "2.7.7"
 navigationRuntimeKtx = "2.7.7"
+runtimeLivedata = "1.6.8"
 
 [libraries]
 androidx-activity-compose-v140 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
@@ -89,6 +90,7 @@ ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", versio
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

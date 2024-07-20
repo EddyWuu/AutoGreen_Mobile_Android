@@ -14,6 +14,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,9 +26,25 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.AutoGreen.viewmodels.HomeViewModel
+import kotlinx.coroutines.delay
+
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeViewModel) {
+
+    // Observe the temperature data from the ViewModel
+    val temperatureData by viewModel.temperatureData.observeAsState(emptyList())
+
+    // call fetchTemperature() every 10 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            viewModel.fetchTemperature(deviceId = 1)
+            // 10 sec delay
+            delay(10000L)
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -70,14 +89,23 @@ fun HomeScreen() {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     InfoCard(title = "Humidity", data = "50%")
-                    InfoCard(title = "Temperature", data = "25°C")
+
+                    if (temperatureData.isNotEmpty()) {
+                        val latestTemperature = temperatureData.last().temperature
+                        InfoCard(title = "Temperature", data = "$latestTemperature°C")
+                    } else {
+                        InfoCard(title = "Temperature", data = "N/A")
+                    }
+
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     InfoCard(title = "Soil Moisture", data = "30%")
+
                     InfoCard(title = "Water Tank Level", data = "75%")
+
                 }
             }
         }
