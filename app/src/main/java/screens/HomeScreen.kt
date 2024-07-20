@@ -12,23 +12,42 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import screens.tools.CustomTopAppBar
 
 @Composable
 fun HomeScreen() {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        CustomTopAppBar(title = "Home")
+        TopAppBar(
+            title = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Home",
+                        style = TextStyle(
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                    )
+                }
+            },
+            backgroundColor = Color(0xFF008425),
+            contentColor = Color.White
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
