@@ -19,8 +19,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -116,8 +118,20 @@ fun HomeScreen(viewModel: HomeViewModel) {
 fun InfoCard(title: String, data: String) {
     Card(
         modifier = Modifier
-            .size(150.dp),
-        elevation = 4.dp,
+            .size(150.dp)
+            .graphicsLayer {
+                shadowElevation = 8.dp.toPx()
+                shape = RoundedCornerShape(16.dp)
+                clip = false
+            }
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(16.dp),
+                clip = false,
+                ambientColor = Color.Black,
+                spotColor = Color.Black
+            ),
+        elevation = 8.dp,
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
