@@ -21,6 +21,10 @@ object RetrofitInstance {
 }
 
 interface ApiService {
+
+    // api call on this endpoint:
     @GET("api/sensor-data/day/{device_id}")
-    suspend fun getTemperature(@Path("device_id") deviceId: Int): List<SensorDataResponse>
+    // get the data that is of form SensorDataResponse
+    suspend fun getSensorData(@Path("device_id") deviceId: Int): List<SensorDataResponse>
 }
+

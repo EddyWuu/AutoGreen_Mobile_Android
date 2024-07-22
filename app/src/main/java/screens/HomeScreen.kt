@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,13 +36,19 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
 
-    // Observe the temperature data from the ViewModel
+    // Observe the data from the ViewModel
     val temperatureData by viewModel.temperatureData.observeAsState(emptyList())
+    val humidityData by viewModel.humidityData.observeAsState(emptyList())
+    val soilMoistureData by viewModel.soilMoistureData.observeAsState(emptyList())
+    val waterTankData by viewModel.waterTankData.observeAsState(emptyList())
 
-    // call fetchTemperature() every 10 seconds
+
+    // call fetchTemperature() every 10 seconds and get sensor data
     LaunchedEffect(Unit) {
         while (true) {
-            viewModel.fetchTemperature(deviceId = 1)
+
+            viewModel.fetchSensorData(deviceId = 1)
+
             // 10 sec delay
             delay(10000L)
         }
@@ -52,22 +59,23 @@ fun HomeScreen(viewModel: HomeViewModel) {
     ) {
         TopAppBar(
             title = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Home",
-                        style = TextStyle(
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Home",
+                    style = TextStyle(
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
                     )
-                }
-            },
-            backgroundColor = Color(0xFF008425),
-            contentColor = Color.White
+                )
+            }
+        },
+        backgroundColor = Color(0xFF008425),
+        contentColor = Color.White,
+        modifier = Modifier.height(80.dp)
         )
         Box(
             modifier = Modifier
@@ -90,10 +98,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    InfoCard(title = "Humidity", data = "50%")
+                    if (humidityData.isNotEmpty()) {
+                        val latestHumidity = humidityData.last()
+                        InfoCard(title = "Humidity", data = "$latestHumidity%")
+                    } else {
+                        InfoCard(title = "Humidity", data = "N/A")
+                    }
 
                     if (temperatureData.isNotEmpty()) {
-                        val latestTemperature = temperatureData.last().temperature
+                        val latestTemperature = temperatureData.last()
                         InfoCard(title = "Temperature", data = "$latestTemperature°C")
                     } else {
                         InfoCard(title = "Temperature", data = "N/A")
@@ -104,14 +117,23 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    InfoCard(title = "Soil Moisture", data = "30%")
+                    if (soilMoistureData.isNotEmpty()) {
+                        val latestSoilMoisture = soilMoistureData.last()
+                        InfoCard(title = "Soil Moisture", data = "$latestSoilMoisture%")
+                    } else {
+                        InfoCard(title = "Soil Moisture", data = "N/A")
+                    }
 
-                    InfoCard(title = "Water Tank Level", data = "75%")
-
+                    if (waterTankData.isNotEmpty()) {
+                        val latestWaterTankLevel = waterTankData.last()
+                        InfoCard(title = "Water Tank Level", data = "$latestWaterTankLevel%")
+                    } else {
+                        InfoCard(title = "Water Tank Level", data = "N/A")
+                    }
                 }
             }
         }
-        }
+    }
 }
 
 @Composable

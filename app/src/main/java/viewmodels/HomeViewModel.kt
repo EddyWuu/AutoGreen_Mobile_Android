@@ -13,24 +13,38 @@ import kotlinx.coroutines.withContext
 class HomeViewModel: ViewModel() {
 
     // MutableLiveData to hold the list of sensor data responses
-    private val _temperatureData = MutableLiveData<List<SensorDataResponse>>()
+    private val _sensorData = MutableLiveData<List<SensorDataResponse>>()
+    val sensorData: LiveData<List<SensorDataResponse>> get() = _sensorData
 
-    // LiveData to expose the temperature data to the UI
-    val temperatureData: LiveData<List<SensorDataResponse>> get() = _temperatureData
+    // mutable live data for each data
+    private val _temperatureData = MutableLiveData<List<Float>>()
+    val temperatureData: LiveData<List<Float>> get() = _temperatureData
 
-    fun fetchTemperature(deviceId: Int) {
-        // launch a coroutine in the VMscope
+    private val _humidityData = MutableLiveData<List<Float>>()
+    val humidityData: LiveData<List<Float>> get() = _humidityData
+
+    private val _soilMoistureData = MutableLiveData<List<Float>>()
+    val soilMoistureData: LiveData<List<Float>> get() = _soilMoistureData
+
+    private val _waterTankData = MutableLiveData<List<Float>>()
+    val waterTankData: LiveData<List<Float>> get() = _waterTankData
+
+
+    fun fetchSensorData(deviceId: Int) {
         viewModelScope.launch {
             try {
-
+                // call our api func to get sensor data and store as response
                 val response = withContext(Dispatchers.IO) {
-                    // Make the network call to get temp
-                    RetrofitInstance.api.getTemperature(1)
+                    RetrofitInstance.api.getSensorData(deviceId)
                 }
-                // post results to live data
-                _temperatureData.postValue(response)
+                _sensorData.postValue(response)
+
+                // extract our data from our response
+                _temperatureData.postValue(response.map { it.temperature })
+                _humidityData.postValue(response.map { it.humidity })
+                _soilMoistureData.postValue(response.map { it.soil_moisture_level })
+                _waterTankData.postValue(response.map { it.water_level })
             } catch (e: Exception) {
-                // Handle any errors that might occur during the network request
                 e.printStackTrace()
             }
         }
