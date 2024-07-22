@@ -36,11 +36,15 @@ import com.example.AutoGreen.network.viewmodels.ControlsViewModel
 
 @Composable
 fun ControlsScreen(viewModel: ControlsViewModel) {
+
     var showManualDialog by remember { mutableStateOf(false) }
     var showAutomaticDialog by remember { mutableStateOf(false) }
+    var showTemperatureDialog by remember { mutableStateOf(false)}
+
     var waterAmount by remember { mutableStateOf("") }
     var automaticWateringInterval by remember { mutableStateOf("") }
     var automaticWaterAmount by remember { mutableStateOf("")}
+    var tempValue by remember { mutableStateOf("")}
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -66,6 +70,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
             modifier = Modifier.height(80.dp)
         )
 
+
+        // screen contents
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -91,10 +97,20 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                     text = "Set Automatic Watering",
                     onClick = { showAutomaticDialog = true }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                GradientButton(
+                    text = "Set Temperature",
+                    onClick = { showTemperatureDialog = true }
+                )
             }
 
 
 
+
+            // logic
+            // manual watering button clicked
             if (showManualDialog) {
                 AlertDialog(
                     onDismissRequest = { showManualDialog = false },
@@ -148,6 +164,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                 )
             }
 
+            // automatic watering dialog button clicked
             if (showAutomaticDialog) {
                 AlertDialog(
                     onDismissRequest = { showAutomaticDialog = false },
@@ -216,6 +233,60 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             GradientButton(text = "Confirm") {
                                 viewModel.sendAutomaticWaterAPI(deviceId = 1, automaticWaterAmount = automaticWaterAmount.toIntOrNull() ?: 0, timeInterval = automaticWateringInterval.toIntOrNull() ?: 0)
                                 showAutomaticDialog = false
+                            }
+                        }
+                    }
+                )
+            }
+
+            // set temperature button clicked
+            if (showTemperatureDialog) {
+                AlertDialog(
+                    onDismissRequest = { showTemperatureDialog = false },
+                    shape = RoundedCornerShape(16.dp),
+                    title = {
+                        Text(
+                            text = "Enter optimal temperature",
+                            style = TextStyle(
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        )},
+                    text = {
+                        Column {
+                            Text(text = "Temperature(°C):",
+                                style = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp
+                                )
+                            )
+                            TextField(
+                                value = tempValue,
+                                onValueChange = { tempValue = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                textStyle = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp
+                                )
+                            )
+                        }
+                    },
+                    buttons = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(all = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            GradientButton(text = "Cancel") {
+                                showTemperatureDialog = false
+                            }
+                            GradientButton(text = "Confirm") {
+                                viewModel.sendTemperatureAPI(deviceId = 1, setTemperature = tempValue.toIntOrNull() ?: 0)
+                                showTemperatureDialog = false
                             }
                         }
                     }

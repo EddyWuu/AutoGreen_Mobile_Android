@@ -1,5 +1,6 @@
 package com.example.AutoGreen.network.viewmodels
 
+import TemperatureRequest
 import WaterRequest
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -42,6 +43,26 @@ class ControlsViewModel: ViewModel() {
                 )
                 val request = WaterRequest(command_body = commandBody)
                 val response = RetrofitInstance.api.sendAutomaticWater(deviceId, request)
+                if (response.isSuccessful) {
+                    Log.d("ControlsViewModel", "Success, yay")
+                } else {
+                    Log.e("ControlsViewModel", "Failed, nooo: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
+            }
+        }
+    }
+
+    fun sendTemperatureAPI(deviceId: Int, setTemperature: Int) {
+        viewModelScope.launch {
+            try {
+                val commandBody = mapOf(
+                    "commandType" to "SetTemperature",
+                    "temp" to setTemperature
+                )
+                val request = TemperatureRequest(command_body = commandBody)
+                val response = RetrofitInstance.api.sendTemperature(deviceId, request)
                 if (response.isSuccessful) {
                     Log.d("ControlsViewModel", "Success, yay")
                 } else {
