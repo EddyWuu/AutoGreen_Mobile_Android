@@ -94,4 +94,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
+
+    implementation("com.google.accompanist:accompanist-coil:0.13.0")
 }
