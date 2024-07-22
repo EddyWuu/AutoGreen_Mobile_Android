@@ -1,9 +1,13 @@
 package com.example.AutoGreen.network
 
 import SensorDataResponse
+import WaterRequest
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 
@@ -26,5 +30,16 @@ interface ApiService {
     @GET("api/sensor-data/day/{device_id}")
     // get the data that is of form SensorDataResponse
     suspend fun getSensorData(@Path("device_id") deviceId: Int): List<SensorDataResponse>
+
+    // api call on this end point:
+    @POST("api/commands/{device_id}")
+    // send manual waterting data to server endpoint, body in the form of model waterrequest
+    suspend fun sendManualWater(@Path("device_id") deviceId: Int, @Body request: WaterRequest): Response<Unit>
+
+
+    @POST("api/commands/{device_id}")
+    // send automatic watering data to this endpoint, same as above, just a different func call for future changes
+    suspend fun sendAutomaticWater(@Path("device_id") deviceId: Int, @Body request: WaterRequest): Response<Unit>
+
 }
 

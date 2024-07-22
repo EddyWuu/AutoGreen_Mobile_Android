@@ -16,7 +16,7 @@ class HomeViewModel: ViewModel() {
     private val _sensorData = MutableLiveData<List<SensorDataResponse>>()
     val sensorData: LiveData<List<SensorDataResponse>> get() = _sensorData
 
-    // mutable live data for each data
+    // mutable live data for each data, a list of each data
     private val _temperatureData = MutableLiveData<List<Float>>()
     val temperatureData: LiveData<List<Float>> get() = _temperatureData
 

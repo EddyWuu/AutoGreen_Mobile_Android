@@ -99,6 +99,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     if (humidityData.isNotEmpty()) {
+                        // send latest data from our humidity list
                         val latestHumidity = humidityData.last()
                         InfoCard(title = "Humidity", data = "$latestHumidity%")
                     } else {
