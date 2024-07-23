@@ -50,7 +50,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             viewModel.fetchSensorData(deviceId = 1)
 
             // 10 sec delay
-            delay(10000L)
+            delay(5000L)
         }
     }
 
