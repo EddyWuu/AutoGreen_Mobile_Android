@@ -20,7 +20,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.AutoGreen.network.viewmodels.ControlsViewModel
@@ -42,6 +45,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
     var showManualDialog by remember { mutableStateOf(false) }
     var showAutomaticDialog by remember { mutableStateOf(false) }
     var showTemperatureDialog by remember { mutableStateOf(false)}
+    var showMessageDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
 
     var waterAmount by remember { mutableStateOf("") }
     var automaticWateringInterval by remember { mutableStateOf("") }
@@ -50,6 +55,17 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
 
     var errorMessage by remember { mutableStateOf("") }
     var errorMessage2 by remember { mutableStateOf("") }
+
+    val snackbarMessage by viewModel.snackbarMessage.observeAsState()
+
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let {
+            dialogMessage = it
+            showMessageDialog = true
+            viewModel.snackbarMessage.postValue(null)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -118,7 +134,10 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
             // manual watering button clicked
             if (showManualDialog) {
                 AlertDialog(
-                    onDismissRequest = { showManualDialog = false },
+                    onDismissRequest = {
+                        showManualDialog = false
+                        waterAmount = ""
+                    },
                     shape = RoundedCornerShape(16.dp),
                     title = {
                         Text(
@@ -175,6 +194,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                         ) {
                             GradientButton(text = "Cancel") {
                                 showManualDialog = false
+                                waterAmount = ""
                                 errorMessage = ""
                             }
                             GradientButton(text = "Confirm") {
@@ -186,12 +206,13 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     number > 500 -> {
                                         errorMessage = "The value cannot exceed 500 ml."
                                     }
-                                    number < 0 -> {
-                                        errorMessage = "Negative values are not allowed."
+                                    number < 100 -> {
+                                        errorMessage2 = "The value cannot be lower than 100 ml."
                                     }
                                     else -> {
                                         viewModel.sendManualWaterAPI(deviceId = 1, waterAmount = number)
                                         showManualDialog = false
+                                        waterAmount = ""
                                         errorMessage = ""
                                     }
                                 }
@@ -204,7 +225,11 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
             // automatic watering dialog button clicked
             if (showAutomaticDialog) {
                 AlertDialog(
-                    onDismissRequest = { showAutomaticDialog = false },
+                    onDismissRequest = {
+                        showAutomaticDialog = false
+                        automaticWateringInterval = ""
+                        automaticWaterAmount = ""
+                    },
                     shape = RoundedCornerShape(16.dp),
                     title = {
                         Text(
@@ -312,6 +337,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                         ) {
                             GradientButton(text = "Cancel") {
                                 showAutomaticDialog = false
+                                automaticWateringInterval = ""
+                                automaticWaterAmount = ""
                                 errorMessage = ""
                                 errorMessage2 = ""
                             }
@@ -332,17 +359,20 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     amount == null -> {
                                         errorMessage2 = "Please enter a valid number for amount."
                                     }
-                                    amount > 500 -> {
+                                     amount > 500 -> {
                                         errorMessage2 = "The value cannot exceed 500 ml."
                                     }
-                                    amount < 0 -> {
-                                        errorMessage2 = "Negative values are not allowed for amount."
+                                    amount < 100 -> {
+                                        errorMessage2 = "The value cannot be lower than 100 ml."
                                     }
+
                                     else -> {
                                         viewModel.sendAutomaticWaterAPI(deviceId = 1, automaticWaterAmount = amount, timeInterval = interval)
                                         showAutomaticDialog = false
                                         errorMessage = ""
                                         errorMessage2 = ""
+                                        automaticWateringInterval = ""
+                                        automaticWaterAmount = ""
                                     }
                                 }
                             }
@@ -354,7 +384,10 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
             // set temperature button clicked
             if (showTemperatureDialog) {
                 AlertDialog(
-                    onDismissRequest = { showTemperatureDialog = false },
+                    onDismissRequest = {
+                        showTemperatureDialog = false
+                        tempValue = ""
+                    },
                     shape = RoundedCornerShape(16.dp),
                     title = {
                         Text(
@@ -412,6 +445,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             GradientButton(text = "Cancel") {
                                 showTemperatureDialog = false
                                 errorMessage = ""
+                                tempValue = ""
                             }
                             GradientButton(text = "Confirm") {
                                 val number = tempValue.toIntOrNull()
@@ -429,8 +463,51 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                         viewModel.sendTemperatureAPI(deviceId = 1, setTemperature = tempValue.toIntOrNull() ?: 0)
                                         showTemperatureDialog = false
                                         errorMessage = ""
+                                        tempValue = ""
                                     }
                                 }
+                            }
+                        }
+                    }
+                )
+            }
+
+            // request succ or fail dialog
+            if (showMessageDialog) {
+                AlertDialog(
+                    onDismissRequest = { showMessageDialog = false },
+                    shape = RoundedCornerShape(16.dp),
+                    title = {
+                        Text(
+                            text = "            Request Status",
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = dialogMessage,
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 16.sp
+                            )
+                        )
+                    },
+                    buttons = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(all = 16.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            GradientButton(text = "OK") {
+                                showMessageDialog = false
                             }
                         }
                     }
