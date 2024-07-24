@@ -32,6 +32,11 @@ interface ApiService {
     // get the data that is of form SensorDataResponse
     suspend fun getSensorData(@Path("device_id") deviceId: Int): List<SensorDataResponse>
 
+    // getting sensor data, api call on this endpoint:
+    @GET("api/sensor-data/month/{device_id}")
+    // get the data that is of form SensorDataResponse
+    suspend fun getSensorHistory(@Path("device_id") deviceId: Int): List<SensorDataResponse>
+
     // sending manual watering request api call on this end point:
     @POST("api/commands/{device_id}")
     // send manual watering data to server endpoint, body in the form of model waterrequest

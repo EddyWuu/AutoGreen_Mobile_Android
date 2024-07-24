@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.AutoGreen.network.viewmodels.ControlsViewModel
+import com.example.AutoGreen.viewmodels.HistoryViewModel
 import com.example.AutoGreen.viewmodels.HomeViewModel
 import screens.*
 
@@ -14,6 +15,7 @@ fun BottomNavGraph(navController: NavHostController) {
     val context = LocalContext.current
     val homeViewModel: HomeViewModel = viewModel()
     val controlViewModel: ControlsViewModel = viewModel()
+    val historyViewModel: HistoryViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = BottomNavScreen.Home.route
@@ -26,7 +28,7 @@ fun BottomNavGraph(navController: NavHostController) {
             ControlsScreen(viewModel = controlViewModel)
         }
         composable(route = BottomNavScreen.History.route) {
-            HistoryScreen()
+            HistoryScreen(viewModel = historyViewModel)
         }
         composable(route = BottomNavScreen.Profile.route) {
             ProfileScreen()
