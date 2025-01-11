@@ -6,6 +6,7 @@ import WaterRequest
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.AutoGreen.network.models.PlantInfo
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -50,5 +51,12 @@ interface ApiService {
     // setting temperature
     @POST("api/commands/{device_id}")
     suspend fun sendTemperature(@Path("device_id") deviceId: Int, @Body request: TemperatureRequest): Response<Unit>
+
+    // get general plant info
+    @GET("/plants")
+    suspend fun getPlants(): List<PlantInfo>
+
+    @GET("/api/plants/{plant_id}")
+    suspend fun getPlantById(@Path("plant_id") plantId: Int): PlantInfo
 }
 

@@ -22,7 +22,12 @@ enum class PlantCategory(val description: String) {
 
 // Data class for representing a plant
 data class PlantInfo(
-    val name: String,
+    val plantId: Int,
+    val speciesName: String,
+    val minTempRange: Int,
+    val maxTempRange: Int,
+    val wateringFrequency: String,
+    val wateringAmount: Int,
     val soilMoistureLevel: Int
 ) {
     // function to get the category of the plant based on its soil moist level

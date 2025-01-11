@@ -1,0 +1,46 @@
+package com.example.AutoGreen.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import com.example.AutoGreen.network.RetrofitInstance
+import com.example.AutoGreen.network.models.PlantInfo
+
+class SearchViewModel : ViewModel() {
+
+    // hold the current search query, default empty ""
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    // filter for results of search
+    private val _searchResults = MutableStateFlow<List<PlantInfo>>(emptyList())
+    val searchResults: StateFlow<List<PlantInfo>> = _searchResults
+
+    // fetch from backend
+    private val apiService = RetrofitInstance.api
+
+    // for updating the search query
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+        fetchSearchResults(query)
+    }
+
+    // fetching the search results, in which we grab from apiservice which takes from BE
+    private fun fetchSearchResults(query: String) {
+        viewModelScope.launch {
+            try {
+                // fetch all plants
+                val plants = apiService.getPlants()
+                // filter
+                _searchResults.value = plants.filter {
+                    it.speciesName.contains(query, ignoreCase = true)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _searchResults.value = emptyList()
+            }
+        }
+    }
+}
