@@ -16,9 +16,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -224,6 +226,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
 
             // automatic watering dialog button clicked
             if (showAutomaticDialog) {
+
+                var selectedUnit by remember { mutableStateOf("Days") }
+
                 AlertDialog(
                     onDismissRequest = {
                         showAutomaticDialog = false
@@ -243,8 +248,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                     },
                     text = {
                         Column {
+                            // intervals
                             Text(
-                                text = "Watering interval (minutes):",
+                                text = "Watering interval:",
                                 style = TextStyle(
                                     fontFamily = FontFamily.Serif,
                                     fontWeight = FontWeight.Normal,
@@ -252,24 +258,53 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 )
                             )
 
-                            TextField(
-                                value = automaticWateringInterval,
-                                onValueChange = {
-                                    val filteredInput = it.filter { char -> char.isDigit() }
-                                    automaticWateringInterval = filteredInput
-                                    val interval = filteredInput.toIntOrNull()
-                                    if (interval != null && interval in 0..99999) {
-                                        errorMessage = ""
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextField(
+                                    value = automaticWateringInterval,
+                                    onValueChange = { input ->
+                                        automaticWateringInterval = input.filter { it.isDigit() }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    textStyle = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    ),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                )
+
+                                // dropdown for unit select
+                                var expanded by remember { mutableStateOf(false) }
+
+                                Box(
+                                    modifier = Modifier.padding(start = 8.dp)
+                                ) {
+                                    Button(
+                                        onClick = { expanded = true },
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Color(0xFF008425),
+                                            contentColor = Color.White
+                                        )) {
+                                        Text(text = selectedUnit)
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                ),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }
+                                    ) {
+                                        listOf("Minutes", "Hours", "Days", "Weeks").forEach { unit ->
+                                            DropdownMenuItem(onClick = {
+                                                selectedUnit = unit
+                                                expanded = false
+                                            }) {
+                                                Text(text = unit)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             if (errorMessage.isNotEmpty()) {
                                 Text(
@@ -297,13 +332,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
 
                             TextField(
                                 value = automaticWaterAmount,
-                                onValueChange = {
-                                    val filteredInput = it.filter { char -> char.isDigit() }
-                                    automaticWaterAmount = filteredInput
-                                    val amount = filteredInput.toIntOrNull()
-                                    if (amount != null && amount in 0..500) {
-                                        errorMessage2 = ""
-                                    }
+                                onValueChange = { input ->
+                                    automaticWaterAmount = input.filter { it.isDigit() }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(
@@ -350,24 +380,31 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     interval == null -> {
                                         errorMessage = "Please enter a valid number for interval."
                                     }
-                                    interval > 99999 -> {
-                                        errorMessage = "The value cannot exceed 99999 minutes."
-                                    }
-                                    interval < 0 -> {
-                                        errorMessage = "Negative values are not allowed for interval."
-                                    }
                                     amount == null -> {
                                         errorMessage2 = "Please enter a valid number for amount."
                                     }
-                                     amount > 500 -> {
+                                    amount > 500 -> {
                                         errorMessage2 = "The value cannot exceed 500 ml."
                                     }
                                     amount < 100 -> {
                                         errorMessage2 = "The value cannot be lower than 100 ml."
                                     }
-
                                     else -> {
-                                        viewModel.sendAutomaticWaterAPI(deviceId = 1, automaticWaterAmount = amount, timeInterval = interval)
+                                        // conversions, default is min
+                                        val intervalInMinutes = when (selectedUnit) {
+                                            "Minutes" -> interval
+                                            "Hours" -> interval * 60
+                                            "Days" -> interval * 60 * 24
+                                            "Weeks" -> interval * 60 * 24 * 7
+                                            else -> interval
+                                        }
+
+                                        viewModel.sendAutomaticWaterAPI(
+                                            deviceId = 1,
+                                            automaticWaterAmount = amount,
+                                            timeInterval = intervalInMinutes
+                                        )
+
                                         showAutomaticDialog = false
                                         errorMessage = ""
                                         errorMessage2 = ""
