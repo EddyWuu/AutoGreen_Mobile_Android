@@ -29,10 +29,17 @@ class SearchViewModel : ViewModel() {
 
     // fetching the search results, in which we grab from apiservice which takes from BE
     private fun fetchSearchResults(query: String) {
+
         viewModelScope.launch {
             try {
+                testServerConnectivity()
+                println("helloooooooo")
+
                 // fetch all plants
                 val plants = apiService.getPlants()
+                println("Retrieved plants from server:")
+                plants.forEach { println(it) }
+                
                 // filter
                 _searchResults.value = plants.filter {
                     it.speciesName.contains(query, ignoreCase = true)
@@ -41,6 +48,16 @@ class SearchViewModel : ViewModel() {
                 e.printStackTrace()
                 _searchResults.value = emptyList()
             }
+        }
+    }
+
+    private suspend fun testServerConnectivity() {
+        try {
+            // Quick connectivity check using /api/plants
+            val testResponse = apiService.getPlants()
+            println("Server is reached, ${testResponse.size} plants.")
+        } catch (e: Exception) {
+            println("Server not connecteddddddddddd, ${e.localizedMessage}")
         }
     }
 }
