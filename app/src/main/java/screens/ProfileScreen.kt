@@ -20,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import com.example.AutoGreen.viewmodels.SearchViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.AutoGreen.network.models.PlantInfo
+import com.example.AutoGreen.network.LearningModeManager
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
@@ -140,6 +144,10 @@ fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
 // pop up for when plant selected
 @Composable
 fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
+
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope() // for composable lifecycle
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -154,9 +162,44 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Close")
+            Column {
+                Button(onClick = { showConfirmationDialog = true }) {
+                    Text("Switch to Learning Mode")
+                }
+                Button(onClick = onDismiss) {
+                    Text("Close")
+                }
             }
         }
     )
+
+    if (showConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDialog = false },
+            title = {
+                Text("Confirm Mode Switch")
+            },
+            text = {
+                Text("By pressing confirm you will be swapped to learning mode. Do you want to proceed? (You can change back to manual/automatic mode in controls screen)")
+            },
+            confirmButton = {
+                Button(onClick = {
+
+                    // set learning mode to true
+                    coroutineScope.launch {
+                        LearningModeManager.setLearningMode(true)
+                    }
+                    showConfirmationDialog = false
+                    onDismiss() // dismiss dialog and main one
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showConfirmationDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
