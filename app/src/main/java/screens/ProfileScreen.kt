@@ -12,13 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -34,6 +38,9 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
 
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
+
+    // state to remember plant selected for when the pop up comes up
+    var selectedPlant by remember { mutableStateOf<PlantInfo?>(null) }
 
     Column (modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -65,7 +72,7 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
         ) {
             BasicTextField(
                 value = searchQuery,
-                onValueChange = { viewModel.updateSearchQuery(it) }, // Updates the query
+                onValueChange = { viewModel.updateSearchQuery(it) }, // updates the query
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
@@ -82,7 +89,7 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Search Results
+        // search results
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -98,15 +105,24 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
                 }
             } else {
                 items(searchResults) { plant ->
-                    PlantItem(plant)
+                    PlantItem(plant) {
+                        selectedPlant = plant
+                    }
                 }
+            }
+        }
+
+        if (selectedPlant != null) {
+            PlantDetailsDialog(plant = selectedPlant!!) {
+                selectedPlant = null
             }
         }
     }
 }
 
+// helper view
 @Composable
-fun PlantItem(plant: PlantInfo) {
+fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,4 +134,29 @@ fun PlantItem(plant: PlantInfo) {
         Text(text = "Temperature Range: ${plant.minTempRange}°C - ${plant.maxTempRange}°C")
         Text(text = "Moisture Level: ${plant.soilMoistureLevel}")
     }
+}
+
+
+// pop up for when plant selected
+@Composable
+fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = plant.speciesName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        },
+        text = {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text("Temperature Range: ${plant.minTempRange}°C - ${plant.maxTempRange}°C")
+                Text("Moisture Level: ${plant.soilMoistureLevel}")
+                Text("Watering Frequency: ${plant.wateringFrequency}")
+                Text("Watering Amount: ${plant.wateringAmount}ml")
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }

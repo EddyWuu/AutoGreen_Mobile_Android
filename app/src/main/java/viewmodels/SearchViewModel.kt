@@ -39,7 +39,7 @@ class SearchViewModel : ViewModel() {
                 val plants = apiService.getPlants()
                 println("Retrieved plants from server:")
                 plants.forEach { println(it) }
-                
+
                 // filter
                 _searchResults.value = plants.filter {
                     it.speciesName.contains(query, ignoreCase = true)
