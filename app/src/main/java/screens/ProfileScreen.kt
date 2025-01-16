@@ -1,6 +1,7 @@
 package screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,14 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
 
     // state to remember plant selected for when the pop up comes up
     var selectedPlant by remember { mutableStateOf<PlantInfo?>(null) }
+
+    // initial fetch of all plants to show for no queries select
+    val coroutineScope = rememberCoroutineScope()
+    remember {
+        coroutineScope.launch {
+            viewModel.fetchAllPlants()
+        }
+    }
 
     Column (modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -124,7 +133,7 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
     }
 }
 
-// helper view
+// helper view for plant items in search
 @Composable
 fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
     Column(
@@ -132,6 +141,7 @@ fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .background(Color(0xFFDDFFDD), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+            .clickable { onClick() } // trigger the pop up when clicked
             .padding(16.dp)
     ) {
         Text(text = "Name: ${plant.speciesName}", fontWeight = FontWeight.Bold, fontSize = 16.sp)

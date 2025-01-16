@@ -18,6 +18,9 @@ class SearchViewModel : ViewModel() {
     private val _searchResults = MutableStateFlow<List<PlantInfo>>(emptyList())
     val searchResults: StateFlow<List<PlantInfo>> = _searchResults
 
+    // hold all plants fetched from the server
+    private val _allPlants = MutableStateFlow<List<PlantInfo>>(emptyList())
+
     // fetch from backend
     private val apiService = RetrofitInstance.api
 
@@ -38,7 +41,7 @@ class SearchViewModel : ViewModel() {
                 // fetch all plants
                 val plants = apiService.getPlants()
                 println("Retrieved plants from server:")
-                plants.forEach { println(it) }
+                plants.forEach { println("Plantssss: $it") }
 
                 // filter
                 _searchResults.value = plants.filter {
@@ -46,6 +49,25 @@ class SearchViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                _searchResults.value = emptyList()
+            }
+        }
+    }
+
+    // fetch all plants
+    fun fetchAllPlants() {
+        viewModelScope.launch {
+            try {
+                val plants = apiService.getPlants()
+                _allPlants.value = plants
+                _searchResults.value = plants // Initially display all plants
+
+                // Log all plants fetched
+                println("Fetched all plants from server:")
+                plants.forEach { println(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _allPlants.value = emptyList()
                 _searchResults.value = emptyList()
             }
         }

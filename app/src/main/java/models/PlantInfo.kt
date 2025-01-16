@@ -1,5 +1,7 @@
 package com.example.AutoGreen.network.models
 
+import com.google.gson.annotations.SerializedName
+
 enum class PlantCategory(val description: String) {
     DESERT_DRY("Desert-Dry (0-20%)"),
     ARID_MILD("Arid-Mild (21-40%)"),
@@ -22,13 +24,13 @@ enum class PlantCategory(val description: String) {
 
 // Data class for representing a plant
 data class PlantInfo(
-    val plantId: Int,
-    val speciesName: String,
-    val minTempRange: Int,
-    val maxTempRange: Int,
-    val wateringFrequency: String,
-    val wateringAmount: Int,
-    val soilMoistureLevel: Int
+    @SerializedName("plant_id") val plantId: Int,
+    @SerializedName("species_name") val speciesName: String,
+    @SerializedName("min_temp_range") val minTempRange: Int,
+    @SerializedName("max_temp_range") val maxTempRange: Int,
+    @SerializedName("plant_moisture_level") val soilMoistureLevel: Int,
+    @SerializedName("watering_amount") val wateringAmount: Int,
+    @SerializedName("watering_frequency") val wateringFrequency: Float
 ) {
     // function to get the category of the plant based on its soil moist level
     val category: PlantCategory

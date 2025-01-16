@@ -16,7 +16,7 @@ import retrofit2.http.Path
 // retrofit instance to handle network requests from our server url
 object RetrofitInstance {
 //    private const val BASE_URL = "https://valid-octagon-429920-c3.ue.r.appspot.com/"
-    private const val BASE_URL = "https://ec2-18-206-182-106.compute-1.amazonaws.com:5000/"
+    private const val BASE_URL = "https://autogreen-capstone.ca/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()
