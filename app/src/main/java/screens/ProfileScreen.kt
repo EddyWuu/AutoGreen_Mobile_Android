@@ -2,8 +2,10 @@ package screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -126,9 +128,11 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
         }
 
         if (selectedPlant != null) {
-            PlantDetailsDialog(plant = selectedPlant!!) {
-                selectedPlant = null
-            }
+            PlantDetailsDialog(
+                plant = selectedPlant!!,
+                onDismiss = { selectedPlant = null },
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -136,6 +140,10 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
 // helper view for plant items in search
 @Composable
 fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
+
+    // get the category description based on the plant's moisture level
+    val plantCategoryDescription = plant.category.description
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,17 +154,20 @@ fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
     ) {
         Text(text = "Name: ${plant.speciesName}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Text(text = "Temperature Range: ${plant.minTempRange}°C - ${plant.maxTempRange}°C")
-        Text(text = "Moisture Level: ${plant.soilMoistureLevel}")
+        Text(text = "Moisture Level: ${plant.soilMoistureLevel} ($plantCategoryDescription)")
     }
 }
 
 
 // pop up for when plant selected
 @Composable
-fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
+fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: SearchViewModel = viewModel()) {
 
     var showConfirmationDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope() // for composable lifecycle
+
+    // get the category description based on the plant's moisture level
+    val plantCategoryDescription = plant.category.description
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -166,16 +177,22 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
         text = {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text("Temperature Range: ${plant.minTempRange}°C - ${plant.maxTempRange}°C")
-                Text("Moisture Level: ${plant.soilMoistureLevel}")
+                Text("Moisture Level: ${plant.soilMoistureLevel} ($plantCategoryDescription)")
                 Text("Watering Frequency: ${plant.wateringFrequency}")
                 Text("Watering Amount: ${plant.wateringAmount}ml")
             }
         },
         confirmButton = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Button(onClick = { showConfirmationDialog = true }) {
                     Text("Switch to Learning Mode")
                 }
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = onDismiss) {
                     Text("Close")
                 }
@@ -193,21 +210,31 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit) {
                 Text("By pressing confirm you will be swapped to learning mode. Do you want to proceed? (You can change back to manual/automatic mode in controls screen)")
             },
             confirmButton = {
-                Button(onClick = {
-
-                    // set learning mode to true
-                    coroutineScope.launch {
-                        LearningModeManager.setLearningMode(true)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = { showConfirmationDialog = false }) {
+                        Text("Cancel")
                     }
-                    showConfirmationDialog = false
-                    onDismiss() // dismiss dialog and main one
-                }) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showConfirmationDialog = false }) {
-                    Text("Cancel")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(onClick = {
+                        // set learning mode to true and set plant category
+                        coroutineScope.launch {
+                            LearningModeManager.setLearningMode(true)
+                            LearningModeManager.setCurrentCategory(plant.category)
+                            // call api
+                            viewModel.sendLearningModeCommand(deviceId = 1)
+                        }
+                        showConfirmationDialog = false
+                        onDismiss()
+                    }) {
+                        Text("Confirm")
+                    }
                 }
             }
         )

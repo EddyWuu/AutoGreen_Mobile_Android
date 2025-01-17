@@ -53,6 +53,10 @@ interface ApiService {
     @POST("api/commands/{device_id}")
     suspend fun sendTemperature(@Path("device_id") deviceId: Int, @Body request: TemperatureRequest): Response<Unit>
 
+    // sending info on if learning mode is on and what category/level
+    @POST("api/commands/{device_id}")
+    suspend fun setLearningMode(@Path("device_id") deviceId: Int, @Body request: Map<String, Any>): Response<Map<String, Any>>
+
     // get general plant info
     @GET("api/plants")
     suspend fun getPlants(): List<PlantInfo>

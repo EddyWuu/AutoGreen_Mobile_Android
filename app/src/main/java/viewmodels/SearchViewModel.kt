@@ -2,6 +2,7 @@ package com.example.AutoGreen.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.AutoGreen.network.LearningModeManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -72,6 +73,37 @@ class SearchViewModel : ViewModel() {
             }
         }
     }
+
+    // send command for if learning is set and what category
+    fun sendLearningModeCommand(deviceId: Int) {
+        viewModelScope.launch {
+            try {
+                val isLearning = LearningModeManager.isLearning.value
+                val category = LearningModeManager.currentCategory.value?.description ?: "None"
+
+                // making command_body as a JSON string
+                val request = mapOf(
+                    "isLearning" to isLearning,
+                    "category" to category
+                )
+
+                val response = RetrofitInstance.api.setLearningMode(
+                    deviceId = deviceId,
+                    request = request
+                )
+
+                if (response.isSuccessful) {
+                    println("Command sent successfully: ${response.body()}")
+                } else {
+                    println("Failed to send command: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                println("Error sending command: ${e.message}")
+            }
+        }
+    }
+
+
 
     private suspend fun testServerConnectivity() {
         try {

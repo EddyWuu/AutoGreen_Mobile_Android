@@ -23,6 +23,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.AutoGreen.network.LearningModeManager
 import com.example.AutoGreen.network.viewmodels.ControlsViewModel
 
 @Composable
@@ -59,6 +61,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
     var errorMessage2 by remember { mutableStateOf("") }
 
     val snackbarMessage by viewModel.snackbarMessage.observeAsState()
+    val isLearningMode by LearningModeManager.isLearning.collectAsState()
 
 
     LaunchedEffect(snackbarMessage) {
@@ -92,6 +95,22 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
             contentColor = Color.White,
             modifier = Modifier.height(80.dp)
         )
+
+        // button to show and toggle learning mode
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            GradientButton(
+                text = if (isLearningMode) "Learning Mode: ON" else "Learning Mode: OFF",
+                onClick = {
+//                    LearningModeManager.setLearningMode(!isLearningMode)
+                    // TODO: need to toggle learning mode off only, turning on needs to go through search
+                }
+            )
+        }
 
 
         // screen contents
