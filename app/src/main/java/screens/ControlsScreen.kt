@@ -57,8 +57,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
     var automaticWaterAmount by remember { mutableStateOf("")}
     var tempValue by remember { mutableStateOf("")}
 
-    var errorMessage by remember { mutableStateOf("") }
-    var errorMessage2 by remember { mutableStateOf("") }
+    val error by viewModel.errorMessage.observeAsState("")
+    val error2 by viewModel.errorMessage2.observeAsState("")
 
     val snackbarMessage by viewModel.snackbarMessage.observeAsState()
     val isLearningMode by LearningModeManager.isLearning.collectAsState()
@@ -192,9 +192,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 ),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
-                            if (errorMessage.isNotEmpty()) {
+                            if (error.isNotEmpty()) {
                                 Text(
-                                    text = errorMessage,
+                                    text = error,
                                     color = Color.Red,
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
@@ -216,26 +216,13 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             GradientButton(text = "Cancel") {
                                 showManualDialog = false
                                 waterAmount = ""
-                                errorMessage = ""
+                                viewModel.errorMessage.value = ""
                             }
                             GradientButton(text = "Confirm") {
-                                val number = waterAmount.toIntOrNull()
-                                when {
-                                    number == null -> {
-                                        errorMessage = "Please enter a valid number."
-                                    }
-                                    number > 500 -> {
-                                        errorMessage = "The value cannot exceed 500 ml."
-                                    }
-                                    number < 100 -> {
-                                        errorMessage2 = "The value cannot be lower than 100 ml."
-                                    }
-                                    else -> {
-                                        viewModel.sendManualWaterAPI(deviceId = 1, waterAmount = number)
-                                        showManualDialog = false
-                                        waterAmount = ""
-                                        errorMessage = ""
-                                    }
+                                if (viewModel.validateManualWaterAmount(waterAmount)) {
+                                    viewModel.sendManualWaterAPI(deviceId = 1, waterAmount = waterAmount.toInt())
+                                    showManualDialog = false
+                                    waterAmount = ""
                                 }
                             }
                         }
@@ -325,9 +312,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 }
                             }
 
-                            if (errorMessage.isNotEmpty()) {
+                            if (error.isNotEmpty()) {
                                 Text(
-                                    text = errorMessage,
+                                    text = error,
                                     color = Color.Red,
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
@@ -363,9 +350,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
 
-                            if (errorMessage2.isNotEmpty()) {
+                            if (error2.isNotEmpty()) {
                                 Text(
-                                    text = errorMessage2,
+                                    text = error2,
                                     color = Color.Red,
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
@@ -388,48 +375,23 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 showAutomaticDialog = false
                                 automaticWateringInterval = ""
                                 automaticWaterAmount = ""
-                                errorMessage = ""
-                                errorMessage2 = ""
+                                viewModel.errorMessage.value = ""
+                                viewModel.errorMessage2.value = ""
                             }
                             GradientButton(text = "Confirm") {
-                                val interval = automaticWateringInterval.toIntOrNull()
-                                val amount = automaticWaterAmount.toIntOrNull()
-
-                                when {
-                                    interval == null -> {
-                                        errorMessage = "Please enter a valid number for interval."
-                                    }
-                                    amount == null -> {
-                                        errorMessage2 = "Please enter a valid number for amount."
-                                    }
-                                    amount > 500 -> {
-                                        errorMessage2 = "The value cannot exceed 500 ml."
-                                    }
-                                    amount < 100 -> {
-                                        errorMessage2 = "The value cannot be lower than 100 ml."
-                                    }
-                                    else -> {
-                                        // conversions, default is min
-                                        val intervalInMinutes = when (selectedUnit) {
-                                            "Minutes" -> interval
-                                            "Hours" -> interval * 60
-                                            "Days" -> interval * 60 * 24
-                                            "Weeks" -> interval * 60 * 24 * 7
-                                            else -> interval
-                                        }
-
-                                        viewModel.sendAutomaticWaterAPI(
-                                            deviceId = 1,
-                                            automaticWaterAmount = amount,
-                                            timeInterval = intervalInMinutes
-                                        )
-
-                                        showAutomaticDialog = false
-                                        errorMessage = ""
-                                        errorMessage2 = ""
-                                        automaticWateringInterval = ""
-                                        automaticWaterAmount = ""
-                                    }
+                                if (viewModel.validateAutomaticWatering(automaticWateringInterval, automaticWaterAmount)) {
+                                    val intervalInMinutes = viewModel.convertIntervalToMinutes(
+                                        automaticWateringInterval.toInt(),
+                                        selectedUnit
+                                    )
+                                    viewModel.sendAutomaticWaterAPI(
+                                        deviceId = 1,
+                                        automaticWaterAmount = automaticWaterAmount.toInt(),
+                                        timeInterval = intervalInMinutes
+                                    )
+                                    showAutomaticDialog = false
+                                    automaticWateringInterval = ""
+                                    automaticWaterAmount = ""
                                 }
                             }
                         }
@@ -477,9 +439,9 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                 ),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
-                            if (errorMessage.isNotEmpty()) {
+                            if (error.isNotEmpty()) {
                                 Text(
-                                    text = errorMessage,
+                                    text = error,
                                     color = Color.Red,
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
@@ -500,27 +462,14 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                         ) {
                             GradientButton(text = "Cancel") {
                                 showTemperatureDialog = false
-                                errorMessage = ""
+                                viewModel.errorMessage.value = ""
                                 tempValue = ""
                             }
                             GradientButton(text = "Confirm") {
-                                val number = tempValue.toIntOrNull()
-                                when {
-                                    number == null -> {
-                                        errorMessage = "Please enter a valid number."
-                                    }
-                                    number > 50 -> {
-                                        errorMessage = "The value cannot exceed 50°C."
-                                    }
-                                    number < 0 -> {
-                                        errorMessage = "Negative values are not allowed."
-                                    }
-                                    else -> {
-                                        viewModel.sendTemperatureAPI(deviceId = 1, setTemperature = tempValue.toIntOrNull() ?: 0)
-                                        showTemperatureDialog = false
-                                        errorMessage = ""
-                                        tempValue = ""
-                                    }
+                                if (viewModel.validateTemperature(tempValue)) {
+                                    viewModel.sendTemperatureAPI(deviceId = 1, setTemperature = tempValue.toInt())
+                                    showTemperatureDialog = false
+                                    tempValue = ""
                                 }
                             }
                         }
