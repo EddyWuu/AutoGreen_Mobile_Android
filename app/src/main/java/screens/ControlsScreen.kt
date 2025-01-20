@@ -1,16 +1,19 @@
 package screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -42,6 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.AutoGreen.network.LearningModeManager
 import com.example.AutoGreen.network.viewmodels.ControlsViewModel
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.foundation.layout.*
+
+
 
 @Composable
 fun ControlsScreen(viewModel: ControlsViewModel) {
@@ -73,207 +83,494 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFE9E2)),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(
-            title = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Controls",
-                        style = TextStyle(
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    )
-                }
-            },
-            backgroundColor = Color(0xFF008425),
-            contentColor = Color.White,
-            modifier = Modifier.height(80.dp)
-        )
 
-        // button to show and toggle learning mode
-        Row(
+        // TOP BAR: TITLE
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Center
+                .background(Color(0xFF304B43))
+                .padding(vertical = 32.dp),
+            contentAlignment = Alignment.Center
         ) {
-            GradientButton(
-                text = if (isLearningMode) "Learning Mode: ON" else "Learning Mode: OFF",
-                onClick = {
-//                    LearningModeManager.setLearningMode(!isLearningMode)
-                    // TODO: need to toggle learning mode off only, turning on needs to go through search
-                }
+            Text(
+                text = "Controls",
+                color = Color.White,
+                style = TextStyle(
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
 
+        Spacer(modifier = Modifier.height(30.dp))
 
-        // screen contents
-        Box(
+        // OPTIONS: PRESET / LEARNING MODE
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White, Color(0xFF91FF87))
-                    )
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 0.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            // Preset option
+            Button(
+                onClick = {
+                    if (isLearningMode) {
+                        LearningModeManager.setLearningMode(false)
+                        //                    LearningModeManager.setLearningMode(!isLearningMode)
+                        // TODO: need to toggle learning mode off only, turning on needs to go through search
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(if (!isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (!isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC),
+                    contentColor = if (!isLearningMode) Color.White else Color.Black
+                )
             ) {
-                GradientButton(
-                    text = "Set Water Amount",
-                    onClick = { showManualDialog = true }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                GradientButton(
-                    text = "Set Automatic Watering",
-                    onClick = { showAutomaticDialog = true }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                GradientButton(
-                    text = "Set Temperature",
-                    onClick = { showTemperatureDialog = true }
+                Text(
+                    text = "Preset",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
             }
 
+            Spacer(modifier = Modifier.width(10.dp))
 
+            // Learning mode option
+            Button(
+                onClick = {
+                    if (!isLearningMode) {
+                        LearningModeManager.setLearningMode(true)
+                        //                    LearningModeManager.setLearningMode(!isLearningMode)
+                        // TODO: need to toggle learning mode off only, turning on needs to go through search
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(if (isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC),
+                    contentColor = if (isLearningMode) Color.White else Color.Black
+                )
+            ) {
+                Text(
+                    text = "Learning Mode",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+        }
 
+        if (!isLearningMode) {
+            // screen contents
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .fillMaxHeight(0.7f)
+                    .padding(0.dp),
 
-            // logic
-            // manual watering button clicked
-            if (showManualDialog) {
-                AlertDialog(
-                    onDismissRequest = {
-                        showManualDialog = false
-                        waterAmount = ""
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    title = {
-                        Text(
-                            text = "Enter Water Amount",
-                            style = TextStyle(
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                        )
-                    )},
-                    text = {
-                        Column {
-                            Text(text = "Amount of water (ml):",
-                                style = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                )
-                            )
-                            TextField(
-                                value = waterAmount,
-                                onValueChange = {
-                                    val filteredInput = it.filter { char -> char.isDigit() }
-                                    waterAmount = filteredInput
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                ),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
-                            if (error.isNotEmpty()) {
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .clickable { showManualDialog = true }
+                            .padding(26.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column {
                                 Text(
-                                    text = error,
-                                    color = Color.Red,
+                                    text = "Set Water Amount",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 24.sp,
+                                        color = Color(0xFF304B43)
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Ranges from 100 ml to 500 ml",
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
                                         fontWeight = FontWeight.Normal,
-                                        fontSize = 14.sp
-                                    ),
-                                    modifier = Modifier.padding(top = 8.dp)
+                                        fontSize = 12.sp,
+                                        color = Color(0xFF304B43)
+                                    )
                                 )
                             }
+
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "Navigate",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color(0xFF304B43)
+                            )
                         }
-                    },
-                    buttons = {
+                    }
+
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .clickable { showAutomaticDialog = true }
+                            .padding(26.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(all = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            GradientButton(text = "Cancel") {
-                                showManualDialog = false
-                                waterAmount = ""
-                                viewModel.errorMessage.value = ""
+                            Column {
+                                Text(
+                                    text = "Automatic Watering",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 24.sp,
+                                        color = Color(0xFF304B43)
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(15.dp))
+                                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(
+                                        text = "Every 10 days",
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 13.sp,
+                                            color = Color(0xFF304B43)
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(20.dp)
+                                            .background(Color(0xFF304B43))
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    Text(
+                                        text = "Amount: 400 ml",
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 13.sp,
+                                            color = Color(0xFF304B43)
+                                        )
+                                    )
+                                }
                             }
-                            GradientButton(text = "Confirm") {
-                                if (viewModel.validateManualWaterAmount(waterAmount)) {
-                                    viewModel.sendManualWaterAPI(deviceId = 1, waterAmount = waterAmount.toInt())
+
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "Navigate",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color(0xFF304B43)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .clickable { showTemperatureDialog = true }
+                            .padding(26.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Temperature",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 24.sp,
+                                        color = Color(0xFF304B43)
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Ranges from 0°C to 50°C",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 12.sp,
+                                        color = Color(0xFF304B43)
+                                    )
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(50.dp)
+                                    .background(Color(0xFF304B43))
+                            )
+                            Text(
+                                text = "10°C",
+                                style = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp,
+                                    color = Color(0xFF304B43)
+                                )
+                            )
+
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "Navigate",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color(0xFF304B43)
+                            )
+                        }
+                    }
+                }
+
+
+                // logic
+                // manual watering button clicked
+                if (showManualDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showManualDialog = false
+                            waterAmount = ""
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        title = {
+                            Text(
+                                text = "Enter Water Amount",
+                                style = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            )
+                        },
+                        text = {
+                            Column {
+                                Text(
+                                    text = "Amount of water (ml):",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    )
+                                )
+                                TextField(
+                                    value = waterAmount,
+                                    onValueChange = {
+                                        val filteredInput = it.filter { char -> char.isDigit() }
+                                        waterAmount = filteredInput
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textStyle = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    ),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                )
+                                if (error.isNotEmpty()) {
+                                    Text(
+                                        text = error,
+                                        color = Color.Red,
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 14.sp
+                                        ),
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                            }
+                        },
+                        buttons = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                GradientButton(text = "Cancel") {
                                     showManualDialog = false
                                     waterAmount = ""
+                                    viewModel.errorMessage.value = ""
+                                }
+                                GradientButton(text = "Confirm") {
+                                    if (viewModel.validateManualWaterAmount(waterAmount)) {
+                                        viewModel.sendManualWaterAPI(
+                                            deviceId = 1,
+                                            waterAmount = waterAmount.toInt()
+                                        )
+                                        showManualDialog = false
+                                        waterAmount = ""
+                                    }
                                 }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            // automatic watering dialog button clicked
-            if (showAutomaticDialog) {
+                // automatic watering dialog button clicked
+                if (showAutomaticDialog) {
 
-                var selectedUnit by remember { mutableStateOf("Days") }
+                    var selectedUnit by remember { mutableStateOf("Days") }
 
-                AlertDialog(
-                    onDismissRequest = {
-                        showAutomaticDialog = false
-                        automaticWateringInterval = ""
-                        automaticWaterAmount = ""
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    title = {
-                        Text(
-                            text = "Set Automatic Watering Interval",
-                            style = TextStyle(
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                        )
-                    },
-                    text = {
-                        Column {
-                            // intervals
+                    AlertDialog(
+                        onDismissRequest = {
+                            showAutomaticDialog = false
+                            automaticWateringInterval = ""
+                            automaticWaterAmount = ""
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        title = {
                             Text(
-                                text = "Watering interval:",
+                                text = "Set Automatic Watering Interval",
                                 style = TextStyle(
                                     fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
                                 )
                             )
+                        },
+                        text = {
+                            Column {
+                                // intervals
+                                Text(
+                                    text = "Watering interval:",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    )
+                                )
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    TextField(
+                                        value = automaticWateringInterval,
+                                        onValueChange = { input ->
+                                            automaticWateringInterval =
+                                                input.filter { it.isDigit() }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        textStyle = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 16.sp
+                                        ),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+
+                                    // dropdown for unit select
+                                    var expanded by remember { mutableStateOf(false) }
+
+                                    Box(
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    ) {
+                                        Button(
+                                            onClick = { expanded = true },
+                                            colors = ButtonDefaults.buttonColors(
+                                                backgroundColor = Color(0xFF008425),
+                                                contentColor = Color.White
+                                            )
+                                        ) {
+                                            Text(text = selectedUnit)
+                                        }
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false }
+                                        ) {
+                                            listOf(
+                                                "Minutes",
+                                                "Hours",
+                                                "Days",
+                                                "Weeks"
+                                            ).forEach { unit ->
+                                                DropdownMenuItem(onClick = {
+                                                    selectedUnit = unit
+                                                    expanded = false
+                                                }) {
+                                                    Text(text = unit)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (error.isNotEmpty()) {
+                                    Text(
+                                        text = error,
+                                        color = Color.Red,
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 14.sp
+                                        ),
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = "Amount of water (ml):",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    )
+                                )
+
                                 TextField(
-                                    value = automaticWateringInterval,
+                                    value = automaticWaterAmount,
                                     onValueChange = { input ->
-                                        automaticWateringInterval = input.filter { it.isDigit() }
+                                        automaticWaterAmount = input.filter { it.isDigit() }
                                     },
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.fillMaxWidth(),
                                     textStyle = TextStyle(
                                         fontFamily = FontFamily.Serif,
                                         fontWeight = FontWeight.Normal,
@@ -282,241 +579,219 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                                 )
 
-                                // dropdown for unit select
-                                var expanded by remember { mutableStateOf(false) }
-
-                                Box(
-                                    modifier = Modifier.padding(start = 8.dp)
-                                ) {
-                                    Button(
-                                        onClick = { expanded = true },
-                                        colors = ButtonDefaults.buttonColors(
-                                            backgroundColor = Color(0xFF008425),
-                                            contentColor = Color.White
-                                        )) {
-                                        Text(text = selectedUnit)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
-                                        listOf("Minutes", "Hours", "Days", "Weeks").forEach { unit ->
-                                            DropdownMenuItem(onClick = {
-                                                selectedUnit = unit
-                                                expanded = false
-                                            }) {
-                                                Text(text = unit)
-                                            }
-                                        }
-                                    }
+                                if (error2.isNotEmpty()) {
+                                    Text(
+                                        text = error2,
+                                        color = Color.Red,
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 14.sp
+                                        ),
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
                                 }
                             }
-
-                            if (error.isNotEmpty()) {
-                                Text(
-                                    text = error,
-                                    color = Color.Red,
-                                    style = TextStyle(
-                                        fontFamily = FontFamily.Serif,
-                                        fontWeight = FontWeight.Normal,
-                                        fontSize = 14.sp
-                                    ),
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                text = "Amount of water (ml):",
-                                style = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                )
-                            )
-
-                            TextField(
-                                value = automaticWaterAmount,
-                                onValueChange = { input ->
-                                    automaticWaterAmount = input.filter { it.isDigit() }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                ),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
-
-                            if (error2.isNotEmpty()) {
-                                Text(
-                                    text = error2,
-                                    color = Color.Red,
-                                    style = TextStyle(
-                                        fontFamily = FontFamily.Serif,
-                                        fontWeight = FontWeight.Normal,
-                                        fontSize = 14.sp
-                                    ),
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-                        }
-                    },
-                    buttons = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(all = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            GradientButton(text = "Cancel") {
-                                showAutomaticDialog = false
-                                automaticWateringInterval = ""
-                                automaticWaterAmount = ""
-                                viewModel.errorMessage.value = ""
-                                viewModel.errorMessage2.value = ""
-                            }
-                            GradientButton(text = "Confirm") {
-                                if (viewModel.validateAutomaticWatering(automaticWateringInterval, automaticWaterAmount)) {
-                                    val intervalInMinutes = viewModel.convertIntervalToMinutes(
-                                        automaticWateringInterval.toInt(),
-                                        selectedUnit
-                                    )
-                                    viewModel.sendAutomaticWaterAPI(
-                                        deviceId = 1,
-                                        automaticWaterAmount = automaticWaterAmount.toInt(),
-                                        timeInterval = intervalInMinutes
-                                    )
+                        },
+                        buttons = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                GradientButton(text = "Cancel") {
                                     showAutomaticDialog = false
                                     automaticWateringInterval = ""
                                     automaticWaterAmount = ""
+                                    viewModel.errorMessage.value = ""
+                                    viewModel.errorMessage2.value = ""
+                                }
+                                GradientButton(text = "Confirm") {
+                                    if (viewModel.validateAutomaticWatering(
+                                            automaticWateringInterval,
+                                            automaticWaterAmount
+                                        )
+                                    ) {
+                                        val intervalInMinutes = viewModel.convertIntervalToMinutes(
+                                            automaticWateringInterval.toInt(),
+                                            selectedUnit
+                                        )
+                                        viewModel.sendAutomaticWaterAPI(
+                                            deviceId = 1,
+                                            automaticWaterAmount = automaticWaterAmount.toInt(),
+                                            timeInterval = intervalInMinutes
+                                        )
+                                        showAutomaticDialog = false
+                                        automaticWateringInterval = ""
+                                        automaticWaterAmount = ""
+                                    }
                                 }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            // set temperature button clicked
-            if (showTemperatureDialog) {
-                AlertDialog(
-                    onDismissRequest = {
-                        showTemperatureDialog = false
-                        tempValue = ""
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    title = {
-                        Text(
-                            text = "Enter optimal temperature",
-                            style = TextStyle(
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                // set temperature button clicked
+                if (showTemperatureDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showTemperatureDialog = false
+                            tempValue = ""
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        title = {
+                            Text(
+                                text = "Enter optimal temperature",
+                                style = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
                             )
-                        )},
-                    text = {
-                        Column {
-                            Text(text = "Temperature(°C):",
+                        },
+                        text = {
+                            Column {
+                                Text(
+                                    text = "Temperature(°C):",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    )
+                                )
+                                TextField(
+                                    value = tempValue,
+                                    onValueChange = {
+                                        val filteredInput = it.filter { char -> char.isDigit() }
+                                        tempValue = filteredInput
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textStyle = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    ),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                )
+                                if (error.isNotEmpty()) {
+                                    Text(
+                                        text = error,
+                                        color = Color.Red,
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 14.sp
+                                        ),
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                            }
+                        },
+                        buttons = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                GradientButton(text = "Cancel") {
+                                    showTemperatureDialog = false
+                                    viewModel.errorMessage.value = ""
+                                    tempValue = ""
+                                }
+                                GradientButton(text = "Confirm") {
+                                    if (viewModel.validateTemperature(tempValue)) {
+                                        viewModel.sendTemperatureAPI(
+                                            deviceId = 1,
+                                            setTemperature = tempValue.toInt()
+                                        )
+                                        showTemperatureDialog = false
+                                        tempValue = ""
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+
+                // request succ or fail dialog
+                if (showMessageDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showMessageDialog = false },
+                        shape = RoundedCornerShape(16.dp),
+                        title = {
+                            Text(
+                                text = "            Request Status",
+                                textAlign = TextAlign.Center,
+                                style = TextStyle(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = dialogMessage,
+                                textAlign = TextAlign.Center,
                                 style = TextStyle(
                                     fontFamily = FontFamily.Serif,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 16.sp
                                 )
                             )
-                            TextField(
-                                value = tempValue,
-                                onValueChange = {
-                                    val filteredInput = it.filter { char -> char.isDigit() }
-                                    tempValue = filteredInput
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = TextStyle(
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 16.sp
-                                ),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
-                            if (error.isNotEmpty()) {
-                                Text(
-                                    text = error,
-                                    color = Color.Red,
-                                    style = TextStyle(
-                                        fontFamily = FontFamily.Serif,
-                                        fontWeight = FontWeight.Normal,
-                                        fontSize = 14.sp
-                                    ),
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-                        }
-                    },
-                    buttons = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(all = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            GradientButton(text = "Cancel") {
-                                showTemperatureDialog = false
-                                viewModel.errorMessage.value = ""
-                                tempValue = ""
-                            }
-                            GradientButton(text = "Confirm") {
-                                if (viewModel.validateTemperature(tempValue)) {
-                                    viewModel.sendTemperatureAPI(deviceId = 1, setTemperature = tempValue.toInt())
-                                    showTemperatureDialog = false
-                                    tempValue = ""
+                        },
+                        buttons = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 16.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                GradientButton(text = "OK") {
+                                    showMessageDialog = false
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
+        } else {
+            // Learning Mode: COntent
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(start = 10.dp, top = 35.dp, end = 10.dp, bottom = 20.dp),
 
-            // request succ or fail dialog
-            if (showMessageDialog) {
-                AlertDialog(
-                    onDismissRequest = { showMessageDialog = false },
-                    shape = RoundedCornerShape(16.dp),
-                    title = {
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .clickable { showManualDialog = true }
+                            .padding(26.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
-                            text = "            Request Status",
-                            textAlign = TextAlign.Center,
+                            text = "Search... Filler",
                             style = TextStyle(
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                                fontSize = 16.sp,
+                                color = Color(0xFF304B43)
                             )
                         )
-                    },
-                    text = {
-                        Text(
-                            text = dialogMessage,
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 16.sp
-                            )
-                        )
-                    },
-                    buttons = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(all = 16.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            GradientButton(text = "OK") {
-                                showMessageDialog = false
-                            }
-                        }
                     }
-                )
+
+                }
             }
         }
     }
@@ -534,7 +809,7 @@ fun GradientButton(text: String, onClick: () -> Unit) {
             modifier = Modifier
                 .background(
                     brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF008425), Color(0xFF5DA06F))
+                        colors = listOf(Color(0xFF008425), Color(0xFF304B43))
                     ),
                     shape = RoundedCornerShape(50)
                 )
@@ -553,3 +828,4 @@ fun GradientButton(text: String, onClick: () -> Unit) {
         }
     }
 }
+

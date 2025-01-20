@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -55,42 +56,40 @@ fun HomeScreen(viewModel: HomeViewModel) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFE9E2)),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(
-            title = {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Home",
-                    style = TextStyle(
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                )
-            }
-        },
-        backgroundColor = Color(0xFF008425),
-        contentColor = Color.White,
-        modifier = Modifier.height(80.dp)
-        )
+        // TOP BAR: TITLE
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White, Color(0xFF91FF87))
-                    )
-                ),
+                .fillMaxWidth()
+                .background(Color(0xFF304B43))
+                .padding(vertical = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Home",
+                color = Color.White,
+                style = TextStyle(
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+//                .background(Color(0xFF304B43))
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+//                    .padding(16.dp),
+                    .padding(start = 16.dp, top = 40.dp, end = 16.dp, bottom = 100.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -141,7 +140,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
 fun InfoCard(title: String, data: String) {
     Card(
         modifier = Modifier
-            .size(150.dp)
+            .width(150.dp)
+            .height(180.dp)
             .graphicsLayer {
                 shadowElevation = 8.dp.toPx()
                 shape = RoundedCornerShape(16.dp)
@@ -160,11 +160,7 @@ fun InfoCard(title: String, data: String) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF008425), Color(0xFF6AA47A))
-                    )
-                )
+                .background(Color(0xFF304B43))
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
