@@ -112,11 +112,6 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-//                HistoryCard(title = "Humidity", dataList = humidityData)
-//                HistoryCard(title = "Temperature", dataList = temperatureData)
-//                HistoryCard(title = "Soil Moisture", dataList = soilMoistureData)
-//                HistoryCard(title = "Water Tank Level", dataList = waterTankData)
-
                 SensorDataGraph(
                     title = "Humidity",
 //                    dataPoints = humidityData.map { it.toFloat() },
@@ -142,54 +137,6 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
         }
     }
 }
-
-@Composable
-fun HistoryCard(title: String, dataList: List<Float>) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .graphicsLayer {
-                shadowElevation = 8.dp.toPx()
-                shape = RoundedCornerShape(16.dp)
-                clip = false
-            }
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
-                clip = false,
-                ambientColor = Color.Black,
-                spotColor = Color.Black
-            ),
-        elevation = 8.dp,
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF304B43))
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = title,
-                fontSize = 13.sp,
-                color = Color.White,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = dataList.joinToString(separator = ", "),
-                fontSize = 18.sp,
-                color = Color.White,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Normal
-            )
-        }
-    }
-}
-
 
 @Composable
 fun SensorDataGraph(
