@@ -1,6 +1,7 @@
 package screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,27 +59,30 @@ fun ProfileScreen(viewModel: SearchViewModel = viewModel()) {
         }
     }
 
-    Column (modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    androidx.compose.material.Text(
-                        text = "Profile",
-                        style = TextStyle(
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    )
-                }
-            },
-            backgroundColor = Color(0xFF008425),
-            contentColor = Color.White,
-            modifier = Modifier.height(80.dp)
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFE9E2)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // TOP BAR: TITLE
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF304B43))
+                .padding(vertical = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.material.Text(
+                text = "Profile",
+                color = Color.White,
+                style = TextStyle(
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
 
 
         Box(
@@ -148,11 +153,11 @@ fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(Color(0xFFDDFFDD), shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+            .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
             .clickable { onClick() } // trigger the pop up when clicked
             .padding(16.dp)
     ) {
-        Text(text = "Name: ${plant.speciesName}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(text = "Name: ${plant.speciesName}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF304B43))
         Text(text = "Temperature Range: ${plant.minTempRange}°C - ${plant.maxTempRange}°C")
         Text(text = "Moisture Level: ${plant.soilMoistureLevel} ($plantCategoryDescription)")
     }
@@ -169,8 +174,10 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
     // get the category description based on the plant's moisture level
     val plantCategoryDescription = plant.category.description
 
+
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color(0xFFEFE9E2),
         title = {
             Text(text = plant.speciesName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         },
@@ -189,11 +196,21 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                     .padding(top = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(onClick = { showConfirmationDialog = true }) {
+                Button(
+                    onClick = { showConfirmationDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF304B43)
+                    )
+                ) {
                     Text("Switch to Learning Mode")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = onDismiss) {
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black
+                    )
+                ) {
                     Text("Close")
                 }
             }
@@ -203,6 +220,7 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
     if (showConfirmationDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmationDialog = false },
+            containerColor = Color(0xFFEFE9E2),
             title = {
                 Text("Confirm Mode Switch")
             },
@@ -216,7 +234,12 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                         .padding(top = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = { showConfirmationDialog = false }) {
+                    Button(
+                        onClick = { showConfirmationDialog = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black
+                        )
+                    ) {
                         Text("Cancel")
                     }
 
@@ -232,7 +255,11 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                         }
                         showConfirmationDialog = false
                         onDismiss()
-                    }) {
+                    },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF304B43)
+                        )
+                    ) {
                         Text("Confirm")
                     }
                 }
