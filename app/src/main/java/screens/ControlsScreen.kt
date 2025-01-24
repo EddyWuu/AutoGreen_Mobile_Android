@@ -377,6 +377,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             waterAmount = ""
                         },
                         shape = RoundedCornerShape(16.dp),
+                        backgroundColor = Color(0xFFEFE9E2),
                         title = {
                             Text(
                                 text = "Enter Water Amount",
@@ -432,21 +433,29 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     .padding(all = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                GradientButton(text = "Cancel") {
-                                    showManualDialog = false
-                                    waterAmount = ""
-                                    viewModel.errorMessage.value = ""
-                                }
-                                GradientButton(text = "Confirm") {
-                                    if (viewModel.validateManualWaterAmount(waterAmount)) {
-                                        viewModel.sendManualWaterAPI(
-                                            deviceId = 1,
-                                            waterAmount = waterAmount.toInt()
-                                        )
+                                GradientButton(
+                                    text = "Cancel",
+                                    buttonColor = Color.Black,
+                                    onClick = {
                                         showManualDialog = false
                                         waterAmount = ""
+                                        viewModel.errorMessage.value = ""
                                     }
-                                }
+                                )
+                                GradientButton(
+                                    text = "Confirm",
+                                    buttonColor = Color(0xFF304B43),
+                                    onClick = {
+                                        if (viewModel.validateManualWaterAmount(waterAmount)) {
+                                            viewModel.sendManualWaterAPI(
+                                                deviceId = 1,
+                                                waterAmount = waterAmount.toInt()
+                                            )
+                                            showManualDialog = false
+                                            waterAmount = ""
+                                        }
+                                    }
+                                )
                             }
                         }
                     )
@@ -464,6 +473,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             automaticWaterAmount = ""
                         },
                         shape = RoundedCornerShape(16.dp),
+                        backgroundColor = Color(0xFFEFE9E2),
                         title = {
                             Text(
                                 text = "Set Automatic Watering Interval",
@@ -514,7 +524,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                         Button(
                                             onClick = { expanded = true },
                                             colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color(0xFF008425),
+                                                backgroundColor = Color(0xFF304B43),
                                                 contentColor = Color.White
                                             )
                                         ) {
@@ -522,7 +532,8 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                         }
                                         DropdownMenu(
                                             expanded = expanded,
-                                            onDismissRequest = { expanded = false }
+                                            onDismissRequest = { expanded = false },
+                                            modifier = Modifier.background(Color(0xFFEFE9E2)),
                                         ) {
                                             listOf(
                                                 "Minutes",
@@ -600,33 +611,41 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     .padding(all = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                GradientButton(text = "Cancel") {
-                                    showAutomaticDialog = false
-                                    automaticWateringInterval = ""
-                                    automaticWaterAmount = ""
-                                    viewModel.errorMessage.value = ""
-                                    viewModel.errorMessage2.value = ""
-                                }
-                                GradientButton(text = "Confirm") {
-                                    if (viewModel.validateAutomaticWatering(
-                                            automaticWateringInterval,
-                                            automaticWaterAmount
-                                        )
-                                    ) {
-                                        val intervalInMinutes = viewModel.convertIntervalToMinutes(
-                                            automaticWateringInterval.toInt(),
-                                            selectedUnit
-                                        )
-                                        viewModel.sendAutomaticWaterAPI(
-                                            deviceId = 1,
-                                            automaticWaterAmount = automaticWaterAmount.toInt(),
-                                            timeInterval = intervalInMinutes
-                                        )
+                                GradientButton(
+                                    text = "Cancel",
+                                    buttonColor = Color.Black,
+                                    onClick = {
                                         showAutomaticDialog = false
                                         automaticWateringInterval = ""
                                         automaticWaterAmount = ""
+                                        viewModel.errorMessage.value = ""
+                                        viewModel.errorMessage2.value = ""
                                     }
-                                }
+                                )
+                                GradientButton(
+                                    text = "Confirm",
+                                    buttonColor = Color(0xFF304B43),
+                                    onClick = {
+                                        if (viewModel.validateAutomaticWatering(
+                                                automaticWateringInterval,
+                                                automaticWaterAmount
+                                            )
+                                        ) {
+                                            val intervalInMinutes = viewModel.convertIntervalToMinutes(
+                                                automaticWateringInterval.toInt(),
+                                                selectedUnit
+                                            )
+                                            viewModel.sendAutomaticWaterAPI(
+                                                deviceId = 1,
+                                                automaticWaterAmount = automaticWaterAmount.toInt(),
+                                                timeInterval = intervalInMinutes
+                                            )
+                                            showAutomaticDialog = false
+                                            automaticWateringInterval = ""
+                                            automaticWaterAmount = ""
+                                        }
+                                    }
+                                )
                             }
                         }
                     )
@@ -640,6 +659,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                             tempValue = ""
                         },
                         shape = RoundedCornerShape(16.dp),
+                        backgroundColor = Color(0xFFEFE9E2),
                         title = {
                             Text(
                                 text = "Enter optimal temperature",
@@ -695,21 +715,29 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     .padding(all = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                GradientButton(text = "Cancel") {
-                                    showTemperatureDialog = false
-                                    viewModel.errorMessage.value = ""
-                                    tempValue = ""
-                                }
-                                GradientButton(text = "Confirm") {
-                                    if (viewModel.validateTemperature(tempValue)) {
-                                        viewModel.sendTemperatureAPI(
-                                            deviceId = 1,
-                                            setTemperature = tempValue.toInt()
-                                        )
+                                GradientButton(
+                                    text = "Cancel",
+                                    buttonColor = Color.Black,
+                                    onClick = {
                                         showTemperatureDialog = false
+                                        viewModel.errorMessage.value = ""
                                         tempValue = ""
                                     }
-                                }
+                                )
+                                GradientButton(
+                                    text = "Confirm",
+                                    buttonColor = Color(0xFF304B43),
+                                    onClick = {
+                                        if (viewModel.validateTemperature(tempValue)) {
+                                            viewModel.sendTemperatureAPI(
+                                                deviceId = 1,
+                                                setTemperature = tempValue.toInt()
+                                            )
+                                            showTemperatureDialog = false
+                                            tempValue = ""
+                                        }
+                                    }
+                                )
                             }
                         }
                     )
@@ -720,6 +748,7 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                     AlertDialog(
                         onDismissRequest = { showMessageDialog = false },
                         shape = RoundedCornerShape(16.dp),
+                        backgroundColor = Color(0xFFEFE9E2),
                         title = {
                             Text(
                                 text = "            Request Status",
@@ -749,9 +778,11 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
                                     .padding(all = 16.dp),
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                GradientButton(text = "OK") {
-                                    showMessageDialog = false
-                                }
+                                GradientButton(
+                                    text = "OK",
+                                    onClick = { showMessageDialog = false },
+                                    buttonColor = Color(0xFF304B43)
+                                )
                             }
                         }
                     )
@@ -798,21 +829,19 @@ fun ControlsScreen(viewModel: ControlsViewModel) {
 }
 
 @Composable
-fun GradientButton(text: String, onClick: () -> Unit) {
+fun GradientButton(
+    text: String,
+    onClick: () -> Unit,
+    buttonColor: Color = Color(0xFF008425)
+) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor),
         contentPadding = PaddingValues(),
         shape = RoundedCornerShape(50)
     ) {
         Box(
             modifier = Modifier
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF008425), Color(0xFF304B43))
-                    ),
-                    shape = RoundedCornerShape(50)
-                )
                 .padding(horizontal = 30.dp, vertical = 20.dp),
             contentAlignment = Alignment.Center
         ) {
