@@ -8,3 +8,8 @@ data class TemperatureRequest(
     val command_body: Map<String, Any>,
     val command_status: String = "pending"
 )
+
+data class LearningModeRequest(
+    val isLearning: Boolean,
+    val moistureLevel: Int? = null
+)

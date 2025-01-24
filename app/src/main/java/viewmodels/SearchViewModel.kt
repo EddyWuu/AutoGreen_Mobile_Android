@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.AutoGreen.network.RetrofitInstance
 import com.example.AutoGreen.network.models.PlantInfo
+import LearningModeRequest
 
 class SearchViewModel : ViewModel() {
 
@@ -75,16 +76,15 @@ class SearchViewModel : ViewModel() {
     }
 
     // send command for if learning is set and what category
-    fun sendLearningModeCommand(deviceId: Int) {
+    fun sendLearningModeCommand(deviceId: Int, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val isLearning = LearningModeManager.isLearning.value
-                val category = LearningModeManager.currentCategory.value?.description ?: "None"
+                val moistureLevel = LearningModeManager.moistureLevel.value
 
-                // making command_body as a JSON string
-                val request = mapOf(
-                    "isLearning" to isLearning,
-                    "category" to category
+                val request = LearningModeRequest(
+                    isLearning = isLearning,
+                    moistureLevel = if (isLearning) moistureLevel else null
                 )
 
                 val response = RetrofitInstance.api.setLearningMode(
@@ -93,12 +93,14 @@ class SearchViewModel : ViewModel() {
                 )
 
                 if (response.isSuccessful) {
-                    println("Command sent successfully: ${response.body()}")
+                    val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} successfully."
+                    onSuccess(successMessage)
                 } else {
-                    println("Failed to send command: ${response.errorBody()?.string()}")
+                    val errorMessage = response.errorBody()?.string() ?: "Failed to set learning mode"
+                    onError(errorMessage)
                 }
             } catch (e: Exception) {
-                println("Error sending command: ${e.message}")
+                onError("Network error: ${e.localizedMessage}")
             }
         }
     }

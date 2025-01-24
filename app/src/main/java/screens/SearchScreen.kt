@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
@@ -151,6 +152,9 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
     var showConfirmationDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope() // for composable lifecycle
 
+    var showStatusDialog by remember { mutableStateOf(false) }
+    var statusMessage by remember { mutableStateOf("") }
+
     // get the category description based on the plant's moisture level
     val plantCategoryDescription = plant.category.description
 
@@ -205,7 +209,7 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                 Text("Confirm Mode Switch")
             },
             text = {
-                Text("By pressing confirm you will be swapped to learning mode. Do you want to proceed? (You can change back to manual/automatic mode in controls screen)")
+                Text("By pressing confirm, you will switch to learning mode. Do you want to proceed? (You can change back to manual/automatic mode in the controls screen)")
             },
             confirmButton = {
                 Row(
@@ -223,25 +227,62 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                         Text("Cancel")
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(onClick = {
-                        // set learning mode to true and set plant category
-                        coroutineScope.launch {
-                            LearningModeManager.setLearningMode(true)
-                            LearningModeManager.setCurrentCategory(plant.category)
-                            // call api
-                            viewModel.sendLearningModeCommand(deviceId = 1)
-                        }
-                        showConfirmationDialog = false
-                        onDismiss()
-                    },
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                val moistureLevel = plant.soilMoistureLevel
+                                LearningModeManager.setLearningMode(true)
+                                LearningModeManager.setMoistureLevel(moistureLevel)
+
+                                // call api to send status
+                                viewModel.sendLearningModeCommand(
+                                    deviceId = 2,
+                                    onSuccess = { message ->
+                                        println("onSuccess callback invoked: $message")
+                                        statusMessage = message
+                                        showStatusDialog = true
+                                    },
+                                    onError = { error ->
+                                        println("onError callback invoked: $error")
+                                        statusMessage = error
+                                        showStatusDialog = true
+                                    }
+                                )
+                            }
+                            showConfirmationDialog = false
+                            onDismiss()
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF304B43)
                         )
                     ) {
                         Text("Confirm")
                     }
+                }
+            }
+        )
+    }
+
+    if (showStatusDialog) {
+        AlertDialog(
+            onDismissRequest = { showStatusDialog = false },
+            containerColor = Color(0xFFEFE9E2),
+            title = {
+                Text("Request Status")
+            },
+            text = {
+                Text(statusMessage)
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showStatusDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF304B43)
+                    )
+                ) {
+                    Text("OK")
                 }
             }
         )

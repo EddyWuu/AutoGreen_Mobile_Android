@@ -2,6 +2,7 @@ package com.example.AutoGreen.network
 
 import SensorDataResponse
 import TemperatureRequest
+import LearningModeRequest
 import WaterRequest
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -54,8 +55,8 @@ interface ApiService {
     suspend fun sendTemperature(@Path("device_id") deviceId: Int, @Body request: TemperatureRequest): Response<Unit>
 
     // sending info on if learning mode is on and what category/level
-    @POST("api/commands/{device_id}")
-    suspend fun setLearningMode(@Path("device_id") deviceId: Int, @Body request: Map<String, Any>): Response<Map<String, Any>>
+    @POST("api/device-status/learning-mode/{device_id}")
+    suspend fun setLearningMode(@Path("device_id") deviceId: Int, @Body request: LearningModeRequest): Response<Unit>
 
     // get general plant info
     @GET("api/plants")

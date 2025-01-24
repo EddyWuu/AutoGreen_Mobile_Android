@@ -1,8 +1,12 @@
 package com.example.AutoGreen.network
 
 import com.example.AutoGreen.network.models.PlantCategory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // a global state so learning mode / automatic and manual mode can be managed
 object LearningModeManager {
@@ -10,20 +14,24 @@ object LearningModeManager {
     private val _isLearning = MutableStateFlow(false)
     val isLearning: StateFlow<Boolean> get() = _isLearning
 
-    private val _currentCategory = MutableStateFlow<PlantCategory?>(null)
-    val currentCategory: StateFlow<PlantCategory?> get() = _currentCategory
+    private val _moistureLevel = MutableStateFlow<Int?>(null)
+    val moistureLevel: StateFlow<Int?> get() = _moistureLevel
 
     fun setLearningMode(value: Boolean) {
         _isLearning.value = value
-        // need to clear category if its not learning mode
         if (!value) {
-            _currentCategory.value = null
+            // clear moist
+            _moistureLevel.value = null
         }
-        println("current mode: $isLearning")
+        println("Learning mode: $value, Moisture level cleared: ${!value}")
     }
 
-    fun setCurrentCategory(category: PlantCategory) {
-        _currentCategory.value = category
-        println("current category: ${category.description}")
+    fun setMoistureLevel(level: Int) {
+        if (_isLearning.value) {
+            _moistureLevel.value = level
+            println("Moisture level set to: $level")
+        } else {
+            println("Cannot set moisture level when learning mode is off.")
+        }
     }
 }
