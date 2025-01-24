@@ -12,7 +12,7 @@ import com.example.AutoGreen.viewmodels.SearchViewModel
 import screens.*
 
 @Composable
-fun BottomNavGraph(navController: NavHostController) {
+fun BottomNavGraph(navController: NavHostController, onSheetVisibilityChanged: (Boolean) -> Unit) {
     val context = LocalContext.current
     val homeViewModel: HomeViewModel = viewModel()
     val controlViewModel: ControlsViewModel = viewModel()
@@ -27,7 +27,7 @@ fun BottomNavGraph(navController: NavHostController) {
             HomeScreen(viewModel = homeViewModel)
         }
         composable(route = BottomNavScreen.Controls.route) {
-            ControlsScreen(viewModel = controlViewModel)
+            ControlsScreen(viewModel = controlViewModel, onSheetVisibilityChanged = onSheetVisibilityChanged)
         }
         composable(route = BottomNavScreen.History.route) {
             HistoryScreen(viewModel = historyViewModel)

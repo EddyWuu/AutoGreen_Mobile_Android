@@ -15,6 +15,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination
@@ -27,12 +30,25 @@ import androidx.navigation.compose.rememberNavController
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
+
     val navController = rememberNavController()
+    var isSheetVisible by remember { mutableStateOf(false) }
+
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = {
+            // conditionally show tabs based off sheet visibility
+            if (!isSheetVisible) {
+                BottomBar(navController = navController)
+            }
+        }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            BottomNavGraph(navController = navController)
+            BottomNavGraph(
+                navController = navController,
+                onSheetVisibilityChanged = { isVisible ->
+                    isSheetVisible = isVisible
+                }
+            )
         }
     }
 }
