@@ -71,7 +71,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
     // Fetch sensor data every 10 seconds
     LaunchedEffect(Unit) {
         while (true) {
-            viewModel.fetchSensorHistory(deviceId = 1)
+            viewModel.fetchSensorHistory(deviceId = 2)
             delay(5000L)
         }
     }

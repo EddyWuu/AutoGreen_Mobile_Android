@@ -480,7 +480,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         onClick = {
                                             if (viewModel.validateManualWaterAmount(waterAmount)) {
                                                 viewModel.sendManualWaterAPI(
-                                                    deviceId = 1,
+                                                    deviceId = 2,
                                                     waterAmount = waterAmount.toInt()
                                                 )
                                                 showManualDialog = false
@@ -668,7 +668,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                                     selectedUnit
                                                 )
                                                 viewModel.sendAutomaticWaterAPI(
-                                                    deviceId = 1,
+                                                    deviceId = 2,
                                                     automaticWaterAmount = automaticWaterAmount.toInt(),
                                                     timeInterval = intervalInMinutes
                                                 )
@@ -762,7 +762,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         onClick = {
                                             if (viewModel.validateTemperature(tempValue)) {
                                                 viewModel.sendTemperatureAPI(
-                                                    deviceId = 1,
+                                                    deviceId = 2,
                                                     setTemperature = tempValue.toInt()
                                                 )
                                                 showTemperatureDialog = false

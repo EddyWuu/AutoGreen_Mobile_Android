@@ -48,7 +48,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
     LaunchedEffect(Unit) {
         while (true) {
 
-            viewModel.fetchSensorData(deviceId = 1)
+            viewModel.fetchSensorData(deviceId = 2)
 
             // 10 sec delay
             delay(5000L)
