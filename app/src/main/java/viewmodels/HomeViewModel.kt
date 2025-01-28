@@ -1,5 +1,6 @@
 package com.example.AutoGreen.viewmodels
 
+import DeviceStatusResponse
 import SensorDataResponse
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.AutoGreen.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -29,6 +32,18 @@ class HomeViewModel: ViewModel() {
     private val _waterTankData = MutableLiveData<List<Float>>()
     val waterTankData: LiveData<List<Float>> get() = _waterTankData
 
+    private val _deviceStatus = MutableLiveData<DeviceStatusResponse>()
+    val deviceStatus: LiveData<DeviceStatusResponse> get() = _deviceStatus
+
+    private val _wateringMode = MutableLiveData<String>()
+    val wateringMode: LiveData<String> get() = _wateringMode
+
+    private val _ventStatus = MutableLiveData<Boolean>()
+    val ventStatus: LiveData<Boolean> get() = _ventStatus
+
+    private val _heaterStatus = MutableLiveData<Boolean>()
+    val heaterStatus: LiveData<Boolean> get() = _heaterStatus
+
 
     fun fetchSensorData(deviceId: Int) {
         viewModelScope.launch {
@@ -44,6 +59,26 @@ class HomeViewModel: ViewModel() {
                 _humidityData.postValue(response.map { it.humidity })
                 _soilMoistureData.postValue(response.map { it.soil_moisture_level })
                 _waterTankData.postValue(response.map { it.water_level })
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun fetchDeviceStatus(deviceId: Int) {
+        viewModelScope.launch {
+            try {
+
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitInstance.api.getDeviceStatus(deviceId)
+                }
+                _deviceStatus.postValue(response)
+
+                _wateringMode.postValue(response.watering_mode)
+                _heaterStatus.postValue(response.heater_status.equals("ON", ignoreCase = true))
+                _ventStatus.postValue(response.vent_status.equals("OPEN", ignoreCase = true))
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

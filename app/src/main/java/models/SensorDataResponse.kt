@@ -8,3 +8,14 @@ data class SensorDataResponse(
     val humidity: Float,
     val water_level: Float
 )
+
+data class DeviceStatusResponse(
+    val device_id: Int,
+    val watering_schedule: String?,
+    val target_temperature: Float?,
+    val watering_mode: String,
+    val heating_mode: String?,
+    val water_level: Float?,
+    val heater_status: String,
+    val vent_status: String
+)

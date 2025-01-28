@@ -10,6 +10,5 @@ data class TemperatureRequest(
 )
 
 data class LearningModeRequest(
-    val isLearning: Boolean,
-    val moistureLevel: Int? = null
+    val isLearning: Boolean
 )

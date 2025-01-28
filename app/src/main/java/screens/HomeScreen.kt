@@ -43,12 +43,17 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val soilMoistureData by viewModel.soilMoistureData.observeAsState(emptyList())
     val waterTankData by viewModel.waterTankData.observeAsState(emptyList())
 
+    val wateringMode by viewModel.wateringMode.observeAsState()
+    val ventStatus by viewModel.ventStatus.observeAsState()
+    val heaterStatus by viewModel.heaterStatus.observeAsState()
+
 
     // call fetchTemperature() every 10 seconds and get sensor data
     LaunchedEffect(Unit) {
         while (true) {
 
             viewModel.fetchSensorData(deviceId = 2)
+            viewModel.fetchDeviceStatus(deviceId = 2)
 
             // 10 sec delay
             delay(5000L)
@@ -124,12 +129,23 @@ fun HomeScreen(viewModel: HomeViewModel) {
                         InfoCard(title = "Soil Moisture", data = "N/A")
                     }
 
-                    if (waterTankData.isNotEmpty()) {
-                        val latestWaterTankLevel = waterTankData.last()
-                        InfoCard(title = "Water Tank Level", data = "$latestWaterTankLevel%")
-                    } else {
-                        InfoCard(title = "Water Tank Level", data = "N/A")
-                    }
+//                    if (waterTankData.isNotEmpty()) {
+//                        val latestWaterTankLevel = waterTankData.last()
+//                        InfoCard(title = "Water Tank Level", data = "$latestWaterTankLevel%")
+//                    } else {
+//                        InfoCard(title = "Water Tank Level", data = "N/A")
+//                    }
+                    InfoCard(title = "Watering Mode", data = wateringMode ?: "Manual")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+
+                    InfoCard(title = "Heater Status", data = if (heaterStatus == true) "ON" else "OFF")
+
+                    InfoCard(title = "Vent Status", data = if (ventStatus == true) "OPEN" else "CLOSED")
                 }
             }
         }

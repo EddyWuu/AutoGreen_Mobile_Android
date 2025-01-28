@@ -232,9 +232,9 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                val moistureLevel = plant.soilMoistureLevel
+//                                val moistureLevel = plant.soilMoistureLevel
                                 LearningModeManager.setLearningMode(true)
-                                LearningModeManager.setMoistureLevel(moistureLevel)
+//                                LearningModeManager.setMoistureLevel(moistureLevel)
 
                                 // call api to send status
                                 viewModel.sendLearningModeCommand(

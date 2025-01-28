@@ -80,11 +80,9 @@ class SearchViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isLearning = LearningModeManager.isLearning.value
-                val moistureLevel = LearningModeManager.moistureLevel.value
 
                 val request = LearningModeRequest(
-                    isLearning = isLearning,
-                    moistureLevel = if (isLearning) moistureLevel else null
+                    isLearning = isLearning
                 )
 
                 val response = RetrofitInstance.api.setLearningMode(

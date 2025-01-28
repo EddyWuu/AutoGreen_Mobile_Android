@@ -1,5 +1,6 @@
 package com.example.AutoGreen.network
 
+import DeviceStatusResponse
 import SensorDataResponse
 import TemperatureRequest
 import LearningModeRequest
@@ -39,6 +40,10 @@ interface ApiService {
     @GET("api/sensor-data/month/{device_id}")
     // get the data that is of form SensorDataResponse
     suspend fun getSensorHistory(@Path("device_id") deviceId: Int): List<SensorDataResponse>
+
+    // get device status
+    @GET("api/device-status/{device_id}")
+    suspend fun getDeviceStatus(@Path("device_id") deviceId: Int): DeviceStatusResponse
 
     // sending manual watering request api call on this end point:
     @POST("api/commands/{device_id}")
