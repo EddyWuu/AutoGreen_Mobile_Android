@@ -143,9 +143,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
-                    InfoCard(title = "Heater Status", data = if (heaterStatus == true) "ON" else "OFF")
+                    InfoCard(title = "Heater Status", data = if (heaterStatus == true) "On" else "Off")
 
-                    InfoCard(title = "Vent Status", data = if (ventStatus == true) "OPEN" else "CLOSED")
+                    InfoCard(title = "Vent Status", data = if (ventStatus == true) "Open" else "Closed")
                 }
             }
         }
@@ -154,6 +154,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
 @Composable
 fun InfoCard(title: String, data: String) {
+    val dynamicFontSize = if (data.length > 7) 24.sp else 26.sp
+
     Card(
         modifier = Modifier
             .width(150.dp)
@@ -190,7 +192,7 @@ fun InfoCard(title: String, data: String) {
             )
             Text(
                 text = data,
-                fontSize = 26.sp,
+                fontSize = dynamicFontSize,
                 color = Color.White,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
