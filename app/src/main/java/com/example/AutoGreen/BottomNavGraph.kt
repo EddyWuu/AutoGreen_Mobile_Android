@@ -32,8 +32,8 @@ fun BottomNavGraph(navController: NavHostController, onSheetVisibilityChanged: (
         composable(route = BottomNavScreen.History.route) {
             HistoryScreen(viewModel = historyViewModel)
         }
-        composable(route = BottomNavScreen.Profile.route) {
-            ProfileScreen(viewModel = searchViewModel)
-        }
+//        composable(route = BottomNavScreen.Profile.route) {
+//            ProfileScreen(viewModel = searchViewModel)
+//        }
     }
 }

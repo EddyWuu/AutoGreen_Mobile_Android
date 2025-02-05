@@ -58,8 +58,8 @@ fun BottomBar(navController: NavHostController) {
     val screens = listOf(
         BottomNavScreen.Home,
         BottomNavScreen.Controls,
-        BottomNavScreen.History,
-        BottomNavScreen.Profile
+        BottomNavScreen.History
+//        BottomNavScreen.Profile
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -83,7 +83,7 @@ fun RowScope.AddItem(
         },
         icon = {
             Icon(
-                imageVector = screen.icon,
+                painter = screen.iconPainter(),
                 contentDescription = "NavigationIcon"
             )
         },
