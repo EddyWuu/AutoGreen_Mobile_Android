@@ -114,22 +114,22 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
             ) {
                 SensorDataGraph(
                     title = "Humidity",
-//                    dataPoints = humidityData.map { it.toFloat() },
-                    dataPoints = sampleHumidityData,
+                    dataPoints = humidityData.map { it.toFloat() },
+//                    dataPoints = sampleHumidityData,
                     graphColor = Color(0xFF2196F3)
                 )
 
                 SensorDataGraph(
                     title = "Temperature",
-//                    dataPoints = temperatureData.map { it.toFloat() },
-                    dataPoints = sampleTemperatureData,
+                    dataPoints = temperatureData.map { it.toFloat() },
+//                    dataPoints = sampleTemperatureData,
                     graphColor = Color(0xFFF44336)
                 )
 
                 SensorDataGraph(
                     title = "Soil Moisture",
-//                    dataPoints = soilMoistureData.map { it.toFloat() },
-                    dataPoints = sampleSoilMoistureData,
+                    dataPoints = soilMoistureData.map { it.toFloat() },
+//                    dataPoints = sampleSoilMoistureData,
                     graphColor = Color(0xFF4CAF50)
                 )
 
