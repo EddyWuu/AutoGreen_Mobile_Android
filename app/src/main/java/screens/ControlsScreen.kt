@@ -73,6 +73,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     var automaticWateringInterval by remember { mutableStateOf("") }
     var automaticWaterAmount by remember { mutableStateOf("")}
     var tempValue by remember { mutableStateOf("")}
+    var selectedUnit by remember { mutableStateOf("Days") }
 
     val error by viewModel.errorMessage.observeAsState("")
     val error2 by viewModel.errorMessage2.observeAsState("")
@@ -85,6 +86,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     var showSearchSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
+
 
 
     LaunchedEffect(snackbarMessage) {
@@ -297,32 +299,35 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                     )
                                     Spacer(modifier = Modifier.height(15.dp))
                                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(
-                                            text = "Every 10 days",
-                                            style = TextStyle(
-                                                fontFamily = FontFamily.Serif,
-                                                fontWeight = FontWeight.Normal,
-                                                fontSize = 13.sp,
-                                                color = Color(0xFF304B43)
+                                        if (automaticWateringInterval != "") {
+                                            Text(
+                                                text = "Every $automaticWateringInterval $selectedUnit",
+                                                style = TextStyle(
+                                                    fontFamily = FontFamily.Serif,
+                                                    fontWeight = FontWeight.Normal,
+                                                    fontSize = 13.sp,
+                                                    color = Color(0xFF304B43)
+                                                )
                                             )
-                                        )
-                                        Spacer(modifier = Modifier.width(15.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .width(1.dp)
-                                                .height(20.dp)
-                                                .background(Color(0xFF304B43))
-                                        )
-                                        Spacer(modifier = Modifier.width(15.dp))
-                                        Text(
-                                            text = "Amount: 400 ml",
-                                            style = TextStyle(
-                                                fontFamily = FontFamily.Serif,
-                                                fontWeight = FontWeight.Normal,
-                                                fontSize = 13.sp,
-                                                color = Color(0xFF304B43)
+                                            Spacer(modifier = Modifier.width(15.dp))
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(1.dp)
+                                                    .height(20.dp)
+                                                    .background(Color(0xFF304B43))
                                             )
-                                        )
+                                            Spacer(modifier = Modifier.width(15.dp))
+                                            Text(
+                                                text = "Amount: $automaticWaterAmount ml",
+                                                style = TextStyle(
+                                                    fontFamily = FontFamily.Serif,
+                                                    fontWeight = FontWeight.Normal,
+                                                    fontSize = 13.sp,
+                                                    color = Color(0xFF304B43)
+                                                )
+                                            )
+                                        }
                                     }
                                 }
 
@@ -380,7 +385,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         .background(Color(0xFF304B43))
                                 )
                                 Text(
-                                    text = "10°C",
+                                    text = "$tempValue°C",
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
                                         fontWeight = FontWeight.Bold,
@@ -496,7 +501,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                     // automatic watering dialog button clicked
                     if (showAutomaticDialog) {
 
-                        var selectedUnit by remember { mutableStateOf("Days") }
+//                        var selectedUnit by remember { mutableStateOf("Days") }
 
                         AlertDialog(
                             onDismissRequest = {
