@@ -6,14 +6,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.AutoGreen.network.RetrofitInstance
+import com.example.AutoGreen.network.HttpUrlConnectionService
+//import com.example.AutoGreen.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeViewModel: ViewModel() {
+class HomeViewModel : ViewModel() {
 
     // MutableLiveData to hold the list of sensor data responses
     private val _sensorData = MutableLiveData<List<SensorDataResponse>>()
@@ -44,17 +45,14 @@ class HomeViewModel: ViewModel() {
     private val _heaterStatus = MutableLiveData<Boolean>()
     val heaterStatus: LiveData<Boolean> get() = _heaterStatus
 
-
     fun fetchSensorData(deviceId: Int) {
         viewModelScope.launch {
             try {
-                // call our api func to get sensor data and store as response
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getSensorData(deviceId)
-                }
-                _sensorData.postValue(response)
+                    HttpUrlConnectionService.getSensorData(deviceId)
+                } ?: emptyList() // Ensure non-null value
 
-                // extract our data from our response
+                _sensorData.postValue(response)
                 _temperatureData.postValue(response.map { it.temperature })
                 _humidityData.postValue(response.map { it.humidity })
                 _soilMoistureData.postValue(response.map { it.soil_moisture_level })
@@ -62,6 +60,12 @@ class HomeViewModel: ViewModel() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                // Handle failure case with empty lists
+                _sensorData.postValue(emptyList())
+                _temperatureData.postValue(emptyList())
+                _humidityData.postValue(emptyList())
+                _soilMoistureData.postValue(emptyList())
+                _waterTankData.postValue(emptyList())
             }
         }
     }
@@ -69,19 +73,49 @@ class HomeViewModel: ViewModel() {
     fun fetchDeviceStatus(deviceId: Int) {
         viewModelScope.launch {
             try {
-
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getDeviceStatus(deviceId)
+                val response: DeviceStatusResponse? = withContext(Dispatchers.IO) {
+                    HttpUrlConnectionService.getDeviceStatus(deviceId)
                 }
-                _deviceStatus.postValue(response)
 
-                _wateringMode.postValue(response.watering_mode)
-                _heaterStatus.postValue(response.heater_status.equals("ON", ignoreCase = true))
-                _ventStatus.postValue(response.vent_status.equals("OPEN", ignoreCase = true))
+                val safeResponse = response ?: DeviceStatusResponse(
+                    device_id = deviceId,
+                    watering_schedule = "Not Available",
+                    target_temperature = 0.0f,
+                    watering_mode = "Unknown",
+                    heating_mode = "OFF",
+                    water_level = 0.0f,
+                    heater_status = "OFF",
+                    vent_status = "CLOSED"
+                )
+
+                // Now safeResponse is guaranteed to be non-null
+                _deviceStatus.postValue(safeResponse)
+                _wateringMode.postValue(safeResponse.watering_mode)
+                _heaterStatus.postValue(safeResponse.heater_status.equals("ON", ignoreCase = true))
+                _ventStatus.postValue(safeResponse.vent_status.equals("OPEN", ignoreCase = true))
 
             } catch (e: Exception) {
                 e.printStackTrace()
+
+                // Handle API failure with a safe default response
+                val fallbackResponse = DeviceStatusResponse(
+                    device_id = deviceId,
+                    watering_schedule = "Not Available",
+                    target_temperature = 0.0f,
+                    watering_mode = "Unknown",
+                    heating_mode = "OFF",
+                    water_level = 0.0f,
+                    heater_status = "OFF",
+                    vent_status = "CLOSED"
+                )
+
+                _deviceStatus.postValue(fallbackResponse)
+                _wateringMode.postValue("Unknown")
+                _heaterStatus.postValue(false)
+                _ventStatus.postValue(false)
             }
         }
     }
+
+
 }

@@ -82,10 +82,44 @@ object HttpUrlConnectionService {
         return Gson().fromJson(response, object : TypeToken<List<SensorDataResponse>>() {}.type)
     }
 
-    fun getDeviceStatus(deviceId: Int): DeviceStatusResponse? {
-        val response = getRequest("api/device-status/$deviceId") ?: return null
-        return Gson().fromJson(response, DeviceStatusResponse::class.java)
+    fun getDeviceStatus(deviceId: Int): DeviceStatusResponse {
+        val response = getRequest("api/device-status/$deviceId") ?: return DeviceStatusResponse(
+            device_id = deviceId,
+            watering_schedule = "Not Available",
+            target_temperature = 0.0f,
+            watering_mode = "Unknown",
+            heating_mode = "OFF",
+            water_level = 0.0f,
+            heater_status = "OFF",
+            vent_status = "CLOSED"
+        )
+
+        return try {
+            Gson().fromJson(response, DeviceStatusResponse::class.java) ?: DeviceStatusResponse(
+                device_id = deviceId,
+                watering_schedule = "Not Available",
+                target_temperature = 0.0f,
+                watering_mode = "Unknown",
+                heating_mode = "OFF",
+                water_level = 0.0f,
+                heater_status = "OFF",
+                vent_status = "CLOSED"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            DeviceStatusResponse(
+                device_id = deviceId,
+                watering_schedule = "Not Available",
+                target_temperature = 0.0f,
+                watering_mode = "Unknown",
+                heating_mode = "OFF",
+                water_level = 0.0f,
+                heater_status = "OFF",
+                vent_status = "CLOSED"
+            )
+        }
     }
+
 
     fun sendManualWater(deviceId: Int, request: WaterRequest): Boolean {
         return postRequest("api/commands/$deviceId", request)

@@ -5,7 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.AutoGreen.network.RetrofitInstance
+import com.example.AutoGreen.network.HttpUrlConnectionService
+//import com.example.AutoGreen.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,20 +34,24 @@ class HistoryViewModel: ViewModel() {
     fun fetchSensorHistory(deviceId: Int) {
         viewModelScope.launch {
             try {
-                // call our api func to get sensor data and store as response
+                // Call API function using HttpURLConnection (runs in Dispatchers.IO)
                 val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getSensorHistory(deviceId)
-                }
+                    HttpUrlConnectionService.getSensorHistory(deviceId)
+                } ?: emptyList() // Provide default empty list if null
+
                 _sensorData.postValue(response)
 
-                // extract our data from our response
+                // Extract and post each type of data
                 _temperatureData.postValue(response.map { it.temperature })
                 _humidityData.postValue(response.map { it.humidity })
                 _soilMoistureData.postValue(response.map { it.soil_moisture_level })
                 _waterTankData.postValue(response.map { it.water_level })
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
+
 }

@@ -6,7 +6,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.AutoGreen.network.RetrofitInstance
+import com.example.AutoGreen.network.HttpUrlConnectionService
+//import com.example.AutoGreen.network.RetrofitInstance
 import kotlinx.coroutines.launch
 
 class ControlsViewModel: ViewModel() {
@@ -109,14 +110,15 @@ class ControlsViewModel: ViewModel() {
                 // create request
                 val request = WaterRequest(command_body = commandBody)
                 // send request and get a response, check response in later code
-                val response = RetrofitInstance.api.sendManualWater(deviceId, request)
-                if (response.isSuccessful) {
+                val response = HttpUrlConnectionService.sendManualWater(deviceId, request)
+
+                if (response) {
                     // snack bar message is pop up
                     snackbarMessage.postValue("Manual water request sent successfully")
                     Log.d("ControlsViewModel", "Success, yay")
                 } else {
                     snackbarMessage.postValue("Failed to send manual water request")
-                    Log.e("ControlsViewModel", "Failed, nooo: ${response.errorBody()?.string()}")
+                    Log.e("ControlsViewModel", "Failed, nooo")
                 }
             } catch (e: Exception) {
                 snackbarMessage.postValue("Failed to send manual water request")
@@ -134,14 +136,16 @@ class ControlsViewModel: ViewModel() {
                     "interval" to timeInterval
                 )
                 val request = WaterRequest(command_body = commandBody)
-                val response = RetrofitInstance.api.sendAutomaticWater(deviceId, request)
-                if (response.isSuccessful) {
+                val success = HttpUrlConnectionService.sendAutomaticWater(deviceId, request)
+
+                if (success) {
                     snackbarMessage.postValue("Automatic water request sent successfully")
                     Log.d("ControlsViewModel", "Success, yay")
                 } else {
                     snackbarMessage.postValue("Failed to send automatic water request")
-                    Log.e("ControlsViewModel", "Failed, nooo: ${response.errorBody()?.string()}")
+                    Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
                 }
+
             } catch (e: Exception) {
                 snackbarMessage.postValue("Failed to send automatic water request")
                 Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
@@ -157,14 +161,16 @@ class ControlsViewModel: ViewModel() {
                     "temp" to setTemperature
                 )
                 val request = TemperatureRequest(command_body = commandBody)
-                val response = RetrofitInstance.api.sendTemperature(deviceId, request)
-                if (response.isSuccessful) {
+                val success = HttpUrlConnectionService.sendTemperature(deviceId, request)
+
+                if (success) {
                     snackbarMessage.postValue("Temperature request sent successfully")
                     Log.d("ControlsViewModel", "Success, yay")
                 } else {
                     snackbarMessage.postValue("Failed to send temperature request")
-                    Log.e("ControlsViewModel", "Failed, nooo: ${response.errorBody()?.string()}")
+                    Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
                 }
+
             } catch (e: Exception) {
                 snackbarMessage.postValue("Failed to send temperature request")
                 Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
