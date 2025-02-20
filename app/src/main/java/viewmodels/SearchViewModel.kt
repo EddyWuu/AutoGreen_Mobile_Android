@@ -6,46 +6,41 @@ import com.example.AutoGreen.network.LearningModeManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.example.AutoGreen.network.RetrofitInstance
+//import com.example.AutoGreen.network.RetrofitInstance
 import com.example.AutoGreen.network.models.PlantInfo
 import LearningModeRequest
+import com.example.AutoGreen.network.HttpUrlConnectionService
 
 class SearchViewModel : ViewModel() {
 
-    // hold the current search query, default empty ""
+    // Holds the current search query, default is empty ""
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    // filter for results of search
+    // Holds search results
     private val _searchResults = MutableStateFlow<List<PlantInfo>>(emptyList())
     val searchResults: StateFlow<List<PlantInfo>> = _searchResults
 
-    // hold all plants fetched from the server
+    // Holds all plants fetched from the server
     private val _allPlants = MutableStateFlow<List<PlantInfo>>(emptyList())
 
-    // fetch from backend
-    private val apiService = RetrofitInstance.api
-
-    // for updating the search query
+    // Update the search query and fetch search results
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
         fetchSearchResults(query)
     }
 
-    // fetching the search results, in which we grab from apiservice which takes from BE
+    // Fetch search results from backend
     private fun fetchSearchResults(query: String) {
-
         viewModelScope.launch {
             try {
                 testServerConnectivity()
-                println("helloooooooo")
+                println("Fetching plants from server...")
 
-                // fetch all plants
-                val plants = apiService.getPlants()
+                val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
                 println("Retrieved plants from server:")
-                plants.forEach { println("Plantssss: $it") }
+                plants.forEach { println("Plant: $it") }
 
-                // filter
                 _searchResults.value = plants.filter {
                     it.speciesName.contains(query, ignoreCase = true)
                 }
@@ -56,15 +51,14 @@ class SearchViewModel : ViewModel() {
         }
     }
 
-    // fetch all plants
+    // Fetch all plants from backend
     fun fetchAllPlants() {
         viewModelScope.launch {
             try {
-                val plants = apiService.getPlants()
+                val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
                 _allPlants.value = plants
                 _searchResults.value = plants // Initially display all plants
 
-                // Log all plants fetched
                 println("Fetched all plants from server:")
                 plants.forEach { println(it) }
             } catch (e: Exception) {
@@ -75,27 +69,20 @@ class SearchViewModel : ViewModel() {
         }
     }
 
-    // send command for if learning is set and what category
+    // Send command to toggle learning mode
     fun sendLearningModeCommand(deviceId: Int, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val isLearning = LearningModeManager.isLearning.value
 
-                val request = LearningModeRequest(
-                    isLearning = isLearning
-                )
+                val request = LearningModeRequest(isLearning = isLearning)
+                val success = HttpUrlConnectionService.setLearningMode(deviceId, request)
 
-                val response = RetrofitInstance.api.setLearningMode(
-                    deviceId = deviceId,
-                    request = request
-                )
-
-                if (response.isSuccessful) {
+                if (success) {
                     val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} successfully."
                     onSuccess(successMessage)
                 } else {
-                    val errorMessage = response.errorBody()?.string() ?: "Failed to set learning mode"
-                    onError(errorMessage)
+                    onError("Failed to set learning mode.")
                 }
             } catch (e: Exception) {
                 onError("Network error: ${e.localizedMessage}")
@@ -103,15 +90,13 @@ class SearchViewModel : ViewModel() {
         }
     }
 
-
-
+    // Test if the server is reachable
     private suspend fun testServerConnectivity() {
         try {
-            // Quick connectivity check using /api/plants
-            val testResponse = apiService.getPlants()
-            println("Server is reached, ${testResponse.size} plants.")
+            val testResponse = HttpUrlConnectionService.getPlants()
+            println("Server reached, ${testResponse?.size ?: 0} plants found.")
         } catch (e: Exception) {
-            println("Server not connecteddddddddddd, ${e.localizedMessage}")
+            println("Server not connected: ${e.localizedMessage}")
         }
     }
 }
