@@ -27,66 +27,49 @@ class SearchViewModel : ViewModel() {
     // Update the search query and fetch search results
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
-        fetchSearchResults(query)
+        fetchSearchResults(query)  // Synchronous call (bad)
     }
 
     // Fetch search results from backend
     private fun fetchSearchResults(query: String) {
-        viewModelScope.launch {
-            try {
-                testServerConnectivity()
-                println("Fetching plants from server...")
-
-                val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
-                println("Retrieved plants from server:")
-                plants.forEach { println("Plant: $it") }
-
-                _searchResults.value = plants.filter {
-                    it.speciesName.contains(query, ignoreCase = true)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _searchResults.value = emptyList()
+        try {
+            val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
+            _searchResults.value = plants.filter {
+                it.speciesName.contains(query, ignoreCase = true)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _searchResults.value = emptyList()
         }
     }
-
     // Fetch all plants from backend
     fun fetchAllPlants() {
-        viewModelScope.launch {
-            try {
-                val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
-                _allPlants.value = plants
-                _searchResults.value = plants // Initially display all plants
-
-                println("Fetched all plants from server:")
-                plants.forEach { println(it) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _allPlants.value = emptyList()
-                _searchResults.value = emptyList()
-            }
+        try {
+            val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
+            _allPlants.value = plants
+            _searchResults.value = plants  // Initially display all plants
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _allPlants.value = emptyList()
+            _searchResults.value = emptyList()
         }
     }
 
     // Send command to toggle learning mode
     fun sendLearningModeCommand(deviceId: Int, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val isLearning = LearningModeManager.isLearning.value
+        try {
+            val isLearning = LearningModeManager.isLearning.value
+            val request = LearningModeRequest(isLearning = isLearning)
+            val success = HttpUrlConnectionService.setLearningMode(deviceId, request)
 
-                val request = LearningModeRequest(isLearning = isLearning)
-                val success = HttpUrlConnectionService.setLearningMode(deviceId, request)
-
-                if (success) {
-                    val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} successfully."
-                    onSuccess(successMessage)
-                } else {
-                    onError("Failed to set learning mode.")
-                }
-            } catch (e: Exception) {
-                onError("Network error: ${e.localizedMessage}")
+            if (success) {
+                val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} successfully."
+                onSuccess(successMessage)
+            } else {
+                onError("Failed to set learning mode.")
             }
+        } catch (e: Exception) {
+            onError("Network error: ${e.localizedMessage}")
         }
     }
 

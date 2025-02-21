@@ -100,81 +100,71 @@ class ControlsViewModel: ViewModel() {
     }
 
     fun sendManualWaterAPI(deviceId: Int, waterAmount: Int) {
-        viewModelScope.launch {
-            try {
-                // create our command body
-                val commandBody = mapOf(
-                    "commandType" to "SetManualWaterAmount",
-                    "amount" to waterAmount
-                )
-                // create request
-                val request = WaterRequest(command_body = commandBody)
-                // send request and get a response, check response in later code
-                val response = HttpUrlConnectionService.sendManualWater(deviceId, request)
+        try {
+            val commandBody = mapOf(
+                "commandType" to "SetManualWaterAmount",
+                "amount" to waterAmount
+            )
+            val request = WaterRequest(command_body = commandBody)
+            val response = HttpUrlConnectionService.sendManualWater(deviceId, request)
 
-                if (response) {
-                    // snack bar message is pop up
-                    snackbarMessage.postValue("Manual water request sent successfully")
-                    Log.d("ControlsViewModel", "Success, yay")
-                } else {
-                    snackbarMessage.postValue("Failed to send manual water request")
-                    Log.e("ControlsViewModel", "Failed, nooo")
-                }
-            } catch (e: Exception) {
-                snackbarMessage.postValue("Failed to send manual water request")
-                Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
+            if (response) {
+                snackbarMessage.value = "Manual water request sent successfully"
+                Log.d("ControlsViewModel", "Success, yay")
+            } else {
+                snackbarMessage.value = "Failed to send manual water request"
+                Log.e("ControlsViewModel", "Failed, nooo")
             }
+        } catch (e: Exception) {
+            snackbarMessage.value = "Failed to send manual water request"
+            Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
         }
     }
 
     fun sendAutomaticWaterAPI(deviceId: Int, automaticWaterAmount: Int, timeInterval: Int) {
-        viewModelScope.launch {
-            try {
-                val commandBody = mapOf(
-                    "commandType" to "SetAutomaticWatering",
-                    "amount" to automaticWaterAmount,
-                    "interval" to timeInterval
-                )
-                val request = WaterRequest(command_body = commandBody)
-                val success = HttpUrlConnectionService.sendAutomaticWater(deviceId, request)
+        try {
+            val commandBody = mapOf(
+                "commandType" to "SetAutomaticWatering",
+                "amount" to automaticWaterAmount,
+                "interval" to timeInterval
+            )
+            val request = WaterRequest(command_body = commandBody)
+            val success = HttpUrlConnectionService.sendAutomaticWater(deviceId, request)
 
-                if (success) {
-                    snackbarMessage.postValue("Automatic water request sent successfully")
-                    Log.d("ControlsViewModel", "Success, yay")
-                } else {
-                    snackbarMessage.postValue("Failed to send automatic water request")
-                    Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
-                }
-
-            } catch (e: Exception) {
-                snackbarMessage.postValue("Failed to send automatic water request")
-                Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
+            if (success) {
+                snackbarMessage.value = "Automatic water request sent successfully"
+                Log.d("ControlsViewModel", "Success, yay")
+            } else {
+                snackbarMessage.value = "Failed to send automatic water request"
+                Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
             }
+
+        } catch (e: Exception) {
+            snackbarMessage.value = "Failed to send automatic water request"
+            Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
         }
     }
 
     fun sendTemperatureAPI(deviceId: Int, setTemperature: Int) {
-        viewModelScope.launch {
-            try {
-                val commandBody = mapOf(
-                    "commandType" to "SetTemperature",
-                    "temp" to setTemperature
-                )
-                val request = TemperatureRequest(command_body = commandBody)
-                val success = HttpUrlConnectionService.sendTemperature(deviceId, request)
+        try {
+            val commandBody = mapOf(
+                "commandType" to "SetTemperature",
+                "temp" to setTemperature
+            )
+            val request = TemperatureRequest(command_body = commandBody)
+            val success = HttpUrlConnectionService.sendTemperature(deviceId, request)
 
-                if (success) {
-                    snackbarMessage.postValue("Temperature request sent successfully")
-                    Log.d("ControlsViewModel", "Success, yay")
-                } else {
-                    snackbarMessage.postValue("Failed to send temperature request")
-                    Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
-                }
-
-            } catch (e: Exception) {
-                snackbarMessage.postValue("Failed to send temperature request")
-                Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
+            if (success) {
+                snackbarMessage.value = "Temperature request sent successfully"
+                Log.d("ControlsViewModel", "Success, yay")
+            } else {
+                snackbarMessage.value = "Failed to send temperature request"
+                Log.e("ControlsViewModel", "Failed, nooo: Unable to send request")
             }
+
+        } catch (e: Exception) {
+            snackbarMessage.value = "Failed to send temperature request"
+            Log.e("ControlsViewModel", "Failed, nooo: ${e.message}")
         }
     }
 }

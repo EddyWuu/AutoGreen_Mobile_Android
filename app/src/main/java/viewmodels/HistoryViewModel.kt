@@ -11,13 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HistoryViewModel: ViewModel() {
+class HistoryViewModel : ViewModel() {
 
-    // MutableLiveData to hold the list of sensor data responses
     private val _sensorData = MutableLiveData<List<SensorDataResponse>>()
     val sensorData: LiveData<List<SensorDataResponse>> get() = _sensorData
 
-    // mutable live data for each data, a list of each data
     private val _temperatureData = MutableLiveData<List<Float>>()
     val temperatureData: LiveData<List<Float>> get() = _temperatureData
 
@@ -32,26 +30,17 @@ class HistoryViewModel: ViewModel() {
 
 
     fun fetchSensorHistory(deviceId: Int) {
-        viewModelScope.launch {
-            try {
-                // Call API function using HttpURLConnection (runs in Dispatchers.IO)
-                val response = withContext(Dispatchers.IO) {
-                    HttpUrlConnectionService.getSensorHistory(deviceId)
-                } ?: emptyList() // Provide default empty list if null
+        try {
+            val response = HttpUrlConnectionService.getSensorHistory(deviceId) ?: emptyList()
 
-                _sensorData.postValue(response)
+            _sensorData.value = response
+            _temperatureData.value = response.map { it.temperature }
+            _humidityData.value = response.map { it.humidity }
+            _soilMoistureData.value = response.map { it.soil_moisture_level }
+            _waterTankData.value = response.map { it.water_level }
 
-                // Extract and post each type of data
-                _temperatureData.postValue(response.map { it.temperature })
-                _humidityData.postValue(response.map { it.humidity })
-                _soilMoistureData.postValue(response.map { it.soil_moisture_level })
-                _waterTankData.postValue(response.map { it.water_level })
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
-
-
 }

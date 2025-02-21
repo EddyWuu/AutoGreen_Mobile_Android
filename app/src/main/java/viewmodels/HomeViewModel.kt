@@ -46,29 +46,27 @@ class HomeViewModel : ViewModel() {
     val heaterStatus: LiveData<Boolean> get() = _heaterStatus
 
     fun fetchSensorData(deviceId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch {  // Running on Main Thread
             try {
-                val response = withContext(Dispatchers.IO) {
-                    HttpUrlConnectionService.getSensorData(deviceId)
-                } ?: emptyList() // Ensure non-null value
+                val response = HttpUrlConnectionService.getSensorData(deviceId) ?: emptyList()
 
-                _sensorData.postValue(response)
-                _temperatureData.postValue(response.map { it.temperature })
-                _humidityData.postValue(response.map { it.humidity })
-                _soilMoistureData.postValue(response.map { it.soil_moisture_level })
-                _waterTankData.postValue(response.map { it.water_level })
+                _sensorData.value = response
+                _temperatureData.value = response.map { it.temperature }
+                _humidityData.value = response.map { it.humidity }
+                _soilMoistureData.value = response.map { it.soil_moisture_level }
+                _waterTankData.value = response.map { it.water_level }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Handle failure case with empty lists
-                _sensorData.postValue(emptyList())
-                _temperatureData.postValue(emptyList())
-                _humidityData.postValue(emptyList())
-                _soilMoistureData.postValue(emptyList())
-                _waterTankData.postValue(emptyList())
+                _sensorData.value = emptyList()
+                _temperatureData.value = emptyList()
+                _humidityData.value = emptyList()
+                _soilMoistureData.value = emptyList()
+                _waterTankData.value = emptyList()
             }
         }
     }
+
 
     fun fetchDeviceStatus(deviceId: Int) {
         viewModelScope.launch {
