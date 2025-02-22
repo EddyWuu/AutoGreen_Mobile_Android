@@ -15,6 +15,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -48,10 +50,10 @@ object HttpUrlConnectionService {
         }
     }
 
-    private fun postRequest(endpoint: String, requestBody: Any): Boolean {
+    suspend fun postRequest(endpoint: String, requestBody: Any): Boolean = withContext(Dispatchers.IO) {
         val url = URL("$BASE_URL$endpoint")
         var connection: HttpURLConnection? = null
-        return try {
+        try {
             connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.connectTimeout = 10000
@@ -72,17 +74,17 @@ object HttpUrlConnectionService {
         }
     }
 
-    fun getSensorData(deviceId: Int): List<SensorDataResponse>? {
+    suspend fun getSensorData(deviceId: Int): List<SensorDataResponse>? {
         val response = getRequest("api/sensor-data/day/$deviceId") ?: return null
         return Gson().fromJson(response, object : TypeToken<List<SensorDataResponse>>() {}.type)
     }
 
-    fun getSensorHistory(deviceId: Int): List<SensorDataResponse>? {
+    suspend fun getSensorHistory(deviceId: Int): List<SensorDataResponse>? {
         val response = getRequest("api/sensor-data/week/$deviceId") ?: return null
         return Gson().fromJson(response, object : TypeToken<List<SensorDataResponse>>() {}.type)
     }
 
-    fun getDeviceStatus(deviceId: Int): DeviceStatusResponse {
+    suspend fun getDeviceStatus(deviceId: Int): DeviceStatusResponse {
         val response = getRequest("api/device-status/$deviceId") ?: return DeviceStatusResponse(
             device_id = deviceId,
             watering_schedule = "Not Available",
@@ -94,50 +96,36 @@ object HttpUrlConnectionService {
             vent_status = "CLOSED"
         )
 
-        return try {
-            Gson().fromJson(response, DeviceStatusResponse::class.java) ?: DeviceStatusResponse(
-                device_id = deviceId,
-                watering_schedule = "Not Available",
-                target_temperature = 0.0f,
-                watering_mode = "Unknown",
-                heating_mode = "OFF",
-                water_level = 0.0f,
-                heater_status = "OFF",
-                vent_status = "CLOSED"
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            DeviceStatusResponse(
-                device_id = deviceId,
-                watering_schedule = "Not Available",
-                target_temperature = 0.0f,
-                watering_mode = "Unknown",
-                heating_mode = "OFF",
-                water_level = 0.0f,
-                heater_status = "OFF",
-                vent_status = "CLOSED"
-            )
-        }
+        return Gson().fromJson(response, DeviceStatusResponse::class.java) ?: DeviceStatusResponse(
+            device_id = deviceId,
+            watering_schedule = "Not Available",
+            target_temperature = 0.0f,
+            watering_mode = "Unknown",
+            heating_mode = "OFF",
+            water_level = 0.0f,
+            heater_status = "OFF",
+            vent_status = "CLOSED"
+        )
     }
 
 
-    fun sendManualWater(deviceId: Int, request: WaterRequest): Boolean {
+    suspend fun sendManualWater(deviceId: Int, request: WaterRequest): Boolean {
         return postRequest("api/commands/$deviceId", request)
     }
 
-    fun sendAutomaticWater(deviceId: Int, request: WaterRequest): Boolean {
+    suspend fun sendAutomaticWater(deviceId: Int, request: WaterRequest): Boolean {
         return postRequest("api/commands/$deviceId", request)
     }
 
-    fun sendTemperature(deviceId: Int, request: TemperatureRequest): Boolean {
+    suspend fun sendTemperature(deviceId: Int, request: TemperatureRequest): Boolean {
         return postRequest("api/commands/$deviceId", request)
     }
 
-    fun setLearningMode(deviceId: Int, request: LearningModeRequest): Boolean {
+    suspend fun setLearningMode(deviceId: Int, request: LearningModeRequest): Boolean {
         return postRequest("api/device-status/learning-mode/$deviceId", request)
     }
 
-    fun getPlants(): List<PlantInfo>? {
+    suspend fun getPlants(): List<PlantInfo>? {
         val response = getRequest("api/plants") ?: return null
         return Gson().fromJson(response, object : TypeToken<List<PlantInfo>>() {}.type)
     }
