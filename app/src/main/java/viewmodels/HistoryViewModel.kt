@@ -9,6 +9,7 @@ import com.example.AutoGreen.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.system.measureTimeMillis
 
 class HistoryViewModel: ViewModel() {
 
@@ -33,17 +34,20 @@ class HistoryViewModel: ViewModel() {
     fun fetchSensorHistory(deviceId: Int) {
         viewModelScope.launch {
             try {
-                // call our api func to get sensor data and store as response
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getSensorHistory(deviceId)
-                }
-                _sensorData.postValue(response)
+                val timeTaken = measureTimeMillis {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitInstance.api.getSensorHistory(deviceId)
+                    }
+                    _sensorData.postValue(response)
 
-                // extract our data from our response
-                _temperatureData.postValue(response.map { it.temperature })
-                _humidityData.postValue(response.map { it.humidity })
-                _soilMoistureData.postValue(response.map { it.soil_moisture_level })
-                _waterTankData.postValue(response.map { it.water_level })
+                    // Extract individual data
+                    _temperatureData.postValue(response.map { it.temperature })
+                    _humidityData.postValue(response.map { it.humidity })
+                    _soilMoistureData.postValue(response.map { it.soil_moisture_level })
+                    _waterTankData.postValue(response.map { it.water_level })
+                }
+                println("fetchSensorHistory Time Taken: $timeTaken ms")
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

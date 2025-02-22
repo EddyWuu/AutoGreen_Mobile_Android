@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.system.measureTimeMillis
 
 class HomeViewModel: ViewModel() {
 
@@ -48,40 +49,46 @@ class HomeViewModel: ViewModel() {
     fun fetchSensorData(deviceId: Int) {
         viewModelScope.launch {
             try {
-                // call our api func to get sensor data and store as response
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getSensorData(deviceId)
-                }
-                _sensorData.postValue(response)
+                val timeTaken = measureTimeMillis {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitInstance.api.getSensorData(deviceId)
+                    }
+                    _sensorData.postValue(response)
 
-                // extract our data from our response
-                _temperatureData.postValue(response.map { it.temperature })
-                _humidityData.postValue(response.map { it.humidity })
-                _soilMoistureData.postValue(response.map { it.soil_moisture_level })
-                _waterTankData.postValue(response.map { it.water_level })
+                    // Extract individual data
+                    _temperatureData.postValue(response.map { it.temperature })
+                    _humidityData.postValue(response.map { it.humidity })
+                    _soilMoistureData.postValue(response.map { it.soil_moisture_level })
+                    _waterTankData.postValue(response.map { it.water_level })
+                }
+                println("fetchSensorData Time Taken: $timeTaken ms")
 
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
 
     fun fetchDeviceStatus(deviceId: Int) {
         viewModelScope.launch {
             try {
+                val timeTaken = measureTimeMillis {
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitInstance.api.getDeviceStatus(deviceId)
+                    }
+                    _deviceStatus.postValue(response)
 
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitInstance.api.getDeviceStatus(deviceId)
+                    _wateringMode.postValue(response.watering_mode)
+                    _heaterStatus.postValue(response.heater_status.equals("ON", ignoreCase = true))
+                    _ventStatus.postValue(response.vent_status.equals("OPEN", ignoreCase = true))
                 }
-                _deviceStatus.postValue(response)
-
-                _wateringMode.postValue(response.watering_mode)
-                _heaterStatus.postValue(response.heater_status.equals("ON", ignoreCase = true))
-                _ventStatus.postValue(response.vent_status.equals("OPEN", ignoreCase = true))
+                println("fetchDeviceStatus Time Taken: $timeTaken ms")
 
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
 }
