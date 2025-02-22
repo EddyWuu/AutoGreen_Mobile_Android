@@ -26,27 +26,56 @@ object HttpUrlConnectionService {
     private const val BASE_URL = "https://autogreen-capstone.ca/"
 
     private fun getRequest(endpoint: String): String? {
-        val url = URL("$BASE_URL$endpoint")
+        val url = "$BASE_URL$endpoint"
+        println("🌐 Sending GET request to: $url")
+
         var connection: HttpURLConnection? = null
         return try {
-            connection = url.openConnection() as HttpURLConnection
+            connection = URL(url).openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.connectTimeout = 10000
             connection.readTimeout = 10000
             connection.doInput = true
 
+            println("📡 Response Code: ${connection.responseCode}")
+
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                connection.inputStream.bufferedReader().use(BufferedReader::readText)
+                // ✅ Ensure InputStream is properly read
+                val inputStream = connection.inputStream
+                if (inputStream == null) {
+                    println("❌ InputStream is null")
+                    return null
+                }
+
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val responseBuilder = StringBuilder()
+
+                println("📥 Reading response data...")
+                reader.useLines { lines -> lines.forEach { responseBuilder.append(it).append("\n") } }
+
+                val fullResponse = responseBuilder.toString().trim()
+                println("✅ API Raw Response (FULL): '$fullResponse'")
+
+                if (fullResponse.isBlank()) {
+                    println("❌ API returned an empty response")
+                    return null
+                }
+                fullResponse
             } else {
+                println("❌ Server returned error: ${connection.responseCode}")
                 null
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            println("❌ Network Error: ${e.message ?: "Unknown error"}")
             null
         } finally {
             connection?.disconnect()
         }
     }
+
+
+
 
     private fun postRequest(endpoint: String, requestBody: Any): Boolean {
         val url = URL("$BASE_URL$endpoint")
@@ -138,9 +167,30 @@ object HttpUrlConnectionService {
     }
 
     fun getPlants(): List<PlantInfo>? {
-        val response = getRequest("api/plants") ?: return null
-        return Gson().fromJson(response, object : TypeToken<List<PlantInfo>>() {}.type)
+        val response = getRequest("api/plants")
+
+        if (response == null) {
+            println("❌ No response received from API")
+            return null
+        }
+
+        println("✅ Raw JSON response from API (Before Parsing): $response") // Log full response
+
+        return try {
+            val plantListType = object : TypeToken<List<PlantInfo>>() {}.type
+            val plants: List<PlantInfo> = Gson().fromJson(response, plantListType)
+
+            println("✅ Successfully parsed plant data: $plants") // Debug log
+            plants
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("❌ JSON Parsing Error: ${e.message}")
+            null
+        }
     }
+
+
+
 
     fun getPlantById(plantId: Int): PlantInfo? {
         val response = getRequest("api/plants/$plantId") ?: return null

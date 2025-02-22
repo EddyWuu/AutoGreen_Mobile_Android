@@ -30,7 +30,8 @@ data class PlantInfo(
     @SerializedName("max_temp_range") val maxTempRange: Int,
     @SerializedName("plant_moisture_level") val soilMoistureLevel: Int,
     @SerializedName("watering_amount") val wateringAmount: Int,
-    @SerializedName("watering_frequency") val wateringFrequency: Float
+    @SerializedName("watering_frequency") val wateringFrequency: Double
+
 ) {
     // function to get the category of the plant based on its soil moist level
     val category: PlantCategory

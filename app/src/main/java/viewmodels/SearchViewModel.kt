@@ -31,17 +31,32 @@ class SearchViewModel : ViewModel() {
     }
 
     // Fetch search results from backend
-    private fun fetchSearchResults(query: String) {
-        try {
-            val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
-            _searchResults.value = plants.filter {
-                it.speciesName.contains(query, ignoreCase = true)
+    fun fetchSearchResults(query: String) {
+        viewModelScope.launch {
+            try {
+                println("🔍 Checking server connectivity before fetching search results...")
+                testServerConnectivity() // ✅ Now works inside coroutine
+
+                println("🔍 Fetching plants from API...")
+                val plants = HttpUrlConnectionService.getPlants() ?: emptyList()
+                println("✅ Retrieved ${plants.size} plants from API.")
+
+                println("🔍 Filtering results for query: '$query'")
+                val filteredPlants = plants.filter {
+                    it.speciesName.contains(query, ignoreCase = true)
+                }
+
+                println("✅ Filtered Results: ${filteredPlants.size} matches found")
+                _searchResults.value = filteredPlants
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("❌ Error fetching or filtering search results: ${e.localizedMessage}")
+                _searchResults.value = emptyList()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _searchResults.value = emptyList()
         }
     }
+
     // Fetch all plants from backend
     fun fetchAllPlants() {
         try {
@@ -77,9 +92,9 @@ class SearchViewModel : ViewModel() {
     private suspend fun testServerConnectivity() {
         try {
             val testResponse = HttpUrlConnectionService.getPlants()
-            println("Server reached, ${testResponse?.size ?: 0} plants found.")
+            println("Server reachedddddddddddd, ${testResponse?.size ?: 0} plants found.")
         } catch (e: Exception) {
-            println("Server not connected: ${e.localizedMessage}")
+            println("Server not connectedddddddddd: ${e.localizedMessage}")
         }
     }
 }
