@@ -196,4 +196,4 @@ object HttpUrlConnectionService {
         val response = getRequest("api/plants/$plantId") ?: return null
         return Gson().fromJson(response, PlantInfo::class.java)
     }
-}
+}// commit comment
