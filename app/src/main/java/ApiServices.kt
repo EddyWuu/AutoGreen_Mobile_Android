@@ -69,5 +69,9 @@ interface ApiService {
 
     @GET("api/plants/{plant_id}")
     suspend fun getPlantById(@Path("plant_id") plantId: Int): PlantInfo
+
+    // update device status
+    @POST("api/device-status/{device_id}")
+    suspend fun updateDeviceStatus(@Path("device_id") deviceId: Int, @Body request: LearningModeRequest): Response<Unit>
 }
 

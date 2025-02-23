@@ -56,6 +56,7 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -74,6 +75,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     var automaticWaterAmount by remember { mutableStateOf("")}
     var tempValue by remember { mutableStateOf("")}
     var selectedUnit by remember { mutableStateOf("Days") }
+    val setTempValue by viewModel.setTempValue.observeAsState("")
 
     val error by viewModel.errorMessage.observeAsState("")
     val error2 by viewModel.errorMessage2.observeAsState("")
@@ -88,7 +90,15 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     val coroutineScope = rememberCoroutineScope()
 
 
+    LaunchedEffect(Unit) {
+        while (true) {
 
+            viewModel.fetchSetTemperature()
+
+            // 5 sec delay
+            delay(2500L)
+        }
+    }
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
             dialogMessage = it
@@ -385,7 +395,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         .background(Color(0xFF304B43))
                                 )
                                 Text(
-                                    text = "$tempValue°C",
+                                    text = "$setTempValue°C",
                                     style = TextStyle(
                                         fontFamily = FontFamily.Serif,
                                         fontWeight = FontWeight.Bold,

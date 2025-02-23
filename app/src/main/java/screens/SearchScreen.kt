@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.AlertDialog
@@ -76,7 +77,7 @@ fun SearchScreen(viewModel: SearchViewModel = viewModel()) {
                 onValueChange = { viewModel.updateSearchQuery(it) }, // updates the query
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                    .background(Color.White, shape = RoundedCornerShape(8.dp))
                     .padding(12.dp),
                 singleLine = true,
                 decorationBox = { innerTextField ->
@@ -134,7 +135,7 @@ fun PlantItem(plant: PlantInfo, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clickable { onClick() } // trigger the pop up when clicked
             .padding(16.dp)
     ) {
@@ -248,7 +249,8 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                                         println("onError callback invoked: $error")
                                         statusMessage = error
                                         showStatusDialog = true
-                                    }
+                                    },
+                                    plantName = "Spider Plant"
                                 )
                             }
                             showConfirmationDialog = false

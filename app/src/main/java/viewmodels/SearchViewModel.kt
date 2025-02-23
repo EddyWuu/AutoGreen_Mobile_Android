@@ -76,22 +76,23 @@ class SearchViewModel : ViewModel() {
     }
 
     // send command for if learning is set and what category
-    fun sendLearningModeCommand(deviceId: Int, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun sendLearningModeCommand(deviceId: Int, plantName: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val isLearning = LearningModeManager.isLearning.value
 
                 val request = LearningModeRequest(
-                    isLearning = isLearning
+                    is_learning_mode = isLearning,
+                    plant_name = plantName
                 )
 
-                val response = RetrofitInstance.api.setLearningMode(
+                val response = RetrofitInstance.api.updateDeviceStatus(
                     deviceId = deviceId,
                     request = request
                 )
 
                 if (response.isSuccessful) {
-                    val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} successfully."
+                    val successMessage = "Learning mode ${if (isLearning) "enabled" else "disabled"} for $plantName."
                     onSuccess(successMessage)
                 } else {
                     val errorMessage = response.errorBody()?.string() ?: "Failed to set learning mode"
@@ -102,6 +103,7 @@ class SearchViewModel : ViewModel() {
             }
         }
     }
+
 
 
 

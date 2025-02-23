@@ -3,6 +3,7 @@ package com.example.AutoGreen.network.viewmodels
 import TemperatureRequest
 import WaterRequest
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,30 @@ class ControlsViewModel: ViewModel() {
     val snackbarMessage = MutableLiveData<String?>()
     val errorMessage = MutableLiveData<String>()
     val errorMessage2 = MutableLiveData<String>()
+
+    private val _setTempValue = MutableLiveData<String>()
+    val setTempValue: LiveData<String> = _setTempValue
+
+    init {
+        fetchSetTemperature()
+    }
+
+    fun fetchSetTemperature() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getDeviceStatus(2)
+                val fetchedTemp = response.target_temperature?.toInt()?.toString() ?: "0"
+
+                Log.d("ControlsViewModel", "Fetched Target Temperature from Backend: $fetchedTemp")
+
+                _setTempValue.postValue(fetchedTemp)
+            } catch (e: Exception) {
+                Log.e("ControlsViewModel", "Error fetching temperature: ${e.message}")
+                _setTempValue.postValue("0")
+            }
+        }
+    }
+
 
     fun validateManualWaterAmount(waterAmount: String): Boolean {
         val number = waterAmount.toIntOrNull()
@@ -163,6 +188,7 @@ class ControlsViewModel: ViewModel() {
                     val request = TemperatureRequest(command_body = commandBody)
                     val response = RetrofitInstance.api.sendTemperature(deviceId, request)
                     if (response.isSuccessful) {
+                        fetchSetTemperature()
                         snackbarMessage.postValue("Temperature request sent successfully")
                         Log.d("ControlsViewModel", "Success, yay")
                     } else {

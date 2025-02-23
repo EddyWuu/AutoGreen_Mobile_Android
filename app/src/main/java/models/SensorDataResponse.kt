@@ -11,7 +11,7 @@ data class SensorDataResponse(
 
 data class DeviceStatusResponse(
     val device_id: Int,
-    val watering_schedule: String?,
+    val watering_schedule: Map<String, Any>?,
     val target_temperature: Float?,
     val watering_mode: String,
     val heating_mode: String?,

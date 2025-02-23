@@ -10,5 +10,6 @@ data class TemperatureRequest(
 )
 
 data class LearningModeRequest(
-    val isLearning: Boolean
+    val is_learning_mode: Boolean,
+    val plant_name: String
 )
