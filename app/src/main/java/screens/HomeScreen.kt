@@ -154,7 +154,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
 @Composable
 fun InfoCard(title: String, data: String) {
-    val dynamicFontSize = if (data.length > 7) 24.sp else 26.sp
+    val dynamicFontSize = if (data.length > 7) 22.sp else 26.sp
 
     Card(
         modifier = Modifier
