@@ -1,5 +1,6 @@
 package screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -70,6 +71,11 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     var showMessageDialog by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
+    var showLearningModeWarning by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    var selectedMode by remember { mutableStateOf("Preset") }
+
     var waterAmount by remember { mutableStateOf("") }
     var automaticWateringInterval by remember { mutableStateOf("") }
     var automaticWaterAmount by remember { mutableStateOf("")}
@@ -92,9 +98,12 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(isLearningMode) {
+        Log.d("ControlsScreen", "isLearningMode: $isLearningMode")
+    }
+
 
     LaunchedEffect(deviceStatus) {
-
 
         viewModel.fetchSetTemperature()
         viewModel.fetchDeviceStatus(2)
@@ -165,8 +174,8 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                 // Preset option
                 Button(
                     onClick = {
-                        if (isLearningMode) {
-                            LearningModeManager.setLearningMode(false)
+                        if (selectedMode == "Learning") {
+                            selectedMode = "Preset"
                             //                    LearningModeManager.setLearningMode(!isLearningMode)
                             // TODO: need to toggle learning mode off only, turning on needs to go through search
                         }
@@ -175,10 +184,10 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                         .weight(1f)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(if (!isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC)),
+                        .background(if (selectedMode == "Preset") Color(0xFF304B43) else Color(0xFFCCCCCC)),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = if (!isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC),
-                        contentColor = if (!isLearningMode) Color.White else Color.Black
+                        backgroundColor = if (selectedMode == "Preset") Color(0xFF304B43) else Color(0xFFCCCCCC),
+                        contentColor = if (selectedMode == "Preset") Color.White else Color.Black
                     )
                 ) {
                     Text(
@@ -195,8 +204,8 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                 // Learning mode option
                 Button(
                     onClick = {
-                        if (!isLearningMode) {
-                            LearningModeManager.setLearningMode(true)
+                        if (selectedMode == "Preset") {
+                            selectedMode = "Learning"
                             //                    LearningModeManager.setLearningMode(!isLearningMode)
                             // TODO: need to toggle learning mode off only, turning on needs to go through search
                         }
@@ -205,10 +214,10 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                         .weight(1f)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(if (isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC)),
+                        .background(if (selectedMode == "Learning") Color(0xFF304B43) else Color(0xFFCCCCCC)),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = if (isLearningMode) Color(0xFF304B43) else Color(0xFFCCCCCC),
-                        contentColor = if (isLearningMode) Color.White else Color.Black
+                        backgroundColor = if (selectedMode == "Learning") Color(0xFF304B43) else Color(0xFFCCCCCC),
+                        contentColor = if (selectedMode == "Learning") Color.White else Color.Black
                     )
                 ) {
                     Text(
@@ -221,7 +230,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                 }
             }
 
-            if (!isLearningMode) {
+            if (selectedMode == "Preset") {
                 // screen contents
                 Box(
                     modifier = Modifier
@@ -480,7 +489,19 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         text = "Confirm",
                                         buttonColor = Color(0xFF304B43),
                                         onClick = {
-                                            if (viewModel.validateManualWaterAmount(waterAmount)) {
+                                            if (isLearningMode) {
+                                                // Show learning mode warning first
+                                                showLearningModeWarning = true
+                                                pendingAction = {
+                                                    viewModel.sendManualWaterAPI(
+                                                        deviceId = 2,
+                                                        waterAmount = waterAmount.toInt()
+                                                    )
+                                                    showManualDialog = false
+                                                    waterAmount = ""
+                                                }
+                                            } else {
+                                                // Directly send the manual watering request
                                                 viewModel.sendManualWaterAPI(
                                                     deviceId = 2,
                                                     waterAmount = waterAmount.toInt()
@@ -490,6 +511,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                             }
                                         }
                                     )
+
                                 }
                             }
                         )
@@ -660,11 +682,24 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         text = "Confirm",
                                         buttonColor = Color(0xFF304B43),
                                         onClick = {
-                                            if (viewModel.validateAutomaticWatering(
-                                                    automaticWateringInterval,
-                                                    automaticWaterAmount
-                                                )
-                                            ) {
+                                            if (isLearningMode) {
+                                                showLearningModeWarning = true
+                                                pendingAction = {
+                                                    val intervalInMinutes = viewModel.convertIntervalToMinutes(
+                                                        automaticWateringInterval.toInt(),
+                                                        selectedUnit
+                                                    )
+                                                    viewModel.sendAutomaticWaterAPI(
+                                                        deviceId = 2,
+                                                        automaticWaterAmount = automaticWaterAmount.toInt(),
+                                                        timeInterval = intervalInMinutes
+                                                    )
+                                                    viewModel.fetchDeviceStatus(2)
+                                                    showAutomaticDialog = false
+                                                    automaticWateringInterval = ""
+                                                    automaticWaterAmount = ""
+                                                }
+                                            } else {
                                                 val intervalInMinutes = viewModel.convertIntervalToMinutes(
                                                     automaticWateringInterval.toInt(),
                                                     selectedUnit
@@ -681,6 +716,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                             }
                                         }
                                     )
+
                                 }
                             }
                         )
@@ -771,6 +807,62 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                                 showTemperatureDialog = false
                                                 tempValue = ""
                                             }
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    }
+
+                    if (showLearningModeWarning) {
+                        AlertDialog(
+                            onDismissRequest = { showLearningModeWarning = false },
+                            shape = RoundedCornerShape(16.dp),
+                            backgroundColor = Color(0xFFEFE9E2),
+                            title = {
+                                Text(
+                                    text = "Warning: Learning Mode Active",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
+                                )
+                            },
+                            text = {
+                                Text(
+                                    text = "Sending this request will disable Learning Mode. Do you want to proceed?",
+                                    style = TextStyle(
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp
+                                    )
+                                )
+                            },
+                            buttons = {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(all = 16.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    GradientButton(
+                                        text = "Cancel",
+                                        buttonColor = Color.Black,
+                                        onClick = { showLearningModeWarning = false }
+                                    )
+                                    GradientButton(
+                                        text = "Confirm",
+                                        buttonColor = Color(0xFF304B43),
+                                        onClick = {
+                                            // Disable Learning Mode
+                                            LearningModeManager.setLearningMode(false)
+
+                                            // Hide warning dialog
+                                            showLearningModeWarning = false
+
+                                            // Execute the stored action (manual/automatic watering)
+                                            pendingAction?.invoke()
                                         }
                                     )
                                 }
