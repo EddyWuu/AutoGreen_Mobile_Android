@@ -21,6 +21,11 @@ data class SetTempRequest(
 )
 
 data class SetWaterFreqRequest(
+    val watering_mode: String,
     val watering_amount: Int?,
     val watering_frequency: Int?
+)
+
+data class SetManualRequest(
+    val watering_mode: String
 )

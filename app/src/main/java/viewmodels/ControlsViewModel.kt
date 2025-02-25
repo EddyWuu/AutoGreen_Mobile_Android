@@ -1,6 +1,7 @@
 package com.example.AutoGreen.network.viewmodels
 
 import DeviceStatusResponse
+import SetManualRequest
 import SetTempRequest
 import SetWaterFreqRequest
 import TemperatureRequest
@@ -161,6 +162,10 @@ class ControlsViewModel: ViewModel() {
                     val request = WaterRequest(command_body = commandBody)
                     val response = RetrofitInstance.api.sendManualWater(deviceId, request)
                     if (response.isSuccessful) {
+                        val setManualRequest = SetManualRequest(
+                            watering_mode = "Manual"
+                        )
+                        val response = RetrofitInstance.api.updateManual(2, setManualRequest)
                         snackbarMessage.postValue("Manual water request sent successfully")
                         Log.d("ControlsViewModel", "Success, yay")
                     } else {
@@ -190,6 +195,7 @@ class ControlsViewModel: ViewModel() {
 
                     if (response.isSuccessful) {
                         val freqRequest = SetWaterFreqRequest(
+                            watering_mode = "Automatic",
                             watering_amount = automaticWaterAmount,
                             watering_frequency = timeInterval
                         )

@@ -4,6 +4,7 @@ import DeviceStatusResponse
 import SensorDataResponse
 import TemperatureRequest
 import LearningModeRequest
+import SetManualRequest
 import WaterRequest
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -81,5 +82,8 @@ interface ApiService {
 
     @POST("api/device-status/{device_id}")
     suspend fun updateSetFreq(@Path("device_id") deviceId: Int, @Body request: SetWaterFreqRequest): Response<Unit>
+
+    @POST("api/device-status/{device_id}")
+    suspend fun updateManual(@Path("device_id") deviceId: Int, @Body request: SetManualRequest): Response<Unit>
 }
 
