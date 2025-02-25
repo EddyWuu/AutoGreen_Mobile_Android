@@ -34,13 +34,4 @@ object LearningModeManager {
     }
 
 
-
-//    fun setMoistureLevel(level: Int) {
-//        if (_isLearning.value) {
-//            _moistureLevel.value = level
-//            println("Moisture level set to: $level")
-//        } else {
-//            println("Cannot set moisture level when learning mode is off.")
-//        }
-//    }
 }

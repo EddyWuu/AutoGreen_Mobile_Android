@@ -855,13 +855,8 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         text = "Confirm",
                                         buttonColor = Color(0xFF304B43),
                                         onClick = {
-                                            // Disable Learning Mode
                                             LearningModeManager.setLearningMode(false)
-
-                                            // Hide warning dialog
                                             showLearningModeWarning = false
-
-                                            // Execute the stored action (manual/automatic watering)
                                             pendingAction?.invoke()
                                         }
                                     )
