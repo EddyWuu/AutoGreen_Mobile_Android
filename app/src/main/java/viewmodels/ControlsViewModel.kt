@@ -1,5 +1,6 @@
 package com.example.AutoGreen.network.viewmodels
 
+import SetTempRequest
 import TemperatureRequest
 import WaterRequest
 import android.util.Log
@@ -187,13 +188,18 @@ class ControlsViewModel: ViewModel() {
                     )
                     val request = TemperatureRequest(command_body = commandBody)
                     val response = RetrofitInstance.api.sendTemperature(deviceId, request)
-                    if (response.isSuccessful) {
+
+                    val setTempResponse = RetrofitInstance.api.updateSetTemp(deviceId, SetTempRequest(target_temperature = setTemperature))
+
+                    if (response.isSuccessful && setTempResponse.isSuccessful) {
                         fetchSetTemperature()
                         snackbarMessage.postValue("Temperature request sent successfully")
-                        Log.d("ControlsViewModel", "Success, yay")
+                        Log.d("ControlsViewModel", "Both API calls succeeded")
                     } else {
+                        val errorResponse1 = response.errorBody()?.string()
+                        val errorResponse2 = setTempResponse.errorBody()?.string()
                         snackbarMessage.postValue("Failed to send temperature request")
-                        Log.e("ControlsViewModel", "Failed, nooo: ${response.errorBody()?.string()}")
+                        Log.e("ControlsViewModel", "Failed: $errorResponse1, $errorResponse2")
                     }
                 } catch (e: Exception) {
                     snackbarMessage.postValue("Failed to send temperature request")

@@ -13,6 +13,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import SetTempRequest
 
 
 // retrofit instance to handle network requests from our server url
@@ -73,5 +74,8 @@ interface ApiService {
     // update device status
     @POST("api/device-status/{device_id}")
     suspend fun updateDeviceStatus(@Path("device_id") deviceId: Int, @Body request: LearningModeRequest): Response<Unit>
+
+    @POST("api/device-status/{device_id}")
+    suspend fun updateSetTemp(@Path("device_id") deviceId: Int, @Body request: SetTempRequest): Response<Unit>
 }
 
