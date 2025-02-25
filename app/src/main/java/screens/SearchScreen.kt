@@ -250,7 +250,7 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                                         statusMessage = error
                                         showStatusDialog = true
                                     },
-                                    plantName = "Spider Plant"
+                                    plantName = plant.speciesName
                                 )
                             }
                             showConfirmationDialog = false

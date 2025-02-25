@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import com.example.AutoGreen.network.RetrofitInstance
 import com.example.AutoGreen.network.models.PlantInfo
 import LearningModeRequest
+import com.example.AutoGreen.network.LearningModeManager.isLearning
 
 class SearchViewModel : ViewModel() {
 
@@ -80,9 +81,11 @@ class SearchViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isLearning = LearningModeManager.isLearning.value
+                val mode = if (isLearning) "Learning" else "Idle"
 
+                // Create a request using your updated data model
                 val request = LearningModeRequest(
-                    is_learning_mode = isLearning,
+                    watering_mode = mode,
                     plant_name = plantName
                 )
 

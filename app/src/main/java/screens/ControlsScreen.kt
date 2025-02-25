@@ -83,6 +83,9 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     val snackbarMessage by viewModel.snackbarMessage.observeAsState()
     val isLearningMode by LearningModeManager.isLearning.collectAsState()
 
+    val deviceStatus by viewModel.deviceStatus.observeAsState()
+
+
     // bottom sheet stuff for serach
     val searchViewModel = remember { SearchViewModel() } // Instantiate here
     var showSearchSheet by remember { mutableStateOf(false) }
@@ -90,14 +93,12 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
     val coroutineScope = rememberCoroutineScope()
 
 
-    LaunchedEffect(Unit) {
-        while (true) {
+    LaunchedEffect(deviceStatus) {
 
-            viewModel.fetchSetTemperature()
 
-            // 5 sec delay
-            delay(2500L)
-        }
+        viewModel.fetchSetTemperature()
+        viewModel.fetchDeviceStatus(2)
+
     }
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
@@ -293,10 +294,11 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                             contentAlignment = Alignment.Center
                         ) {
                             Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
+
                                 Column {
                                     Text(
                                         text = "Automatic Watering",
@@ -307,38 +309,23 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                             color = Color(0xFF304B43)
                                         )
                                     )
-                                    Spacer(modifier = Modifier.height(15.dp))
-                                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                        if (automaticWateringInterval != "") {
-                                            Text(
-                                                text = "Every $automaticWateringInterval $selectedUnit",
-                                                style = TextStyle(
-                                                    fontFamily = FontFamily.Serif,
-                                                    fontWeight = FontWeight.Normal,
-                                                    fontSize = 13.sp,
-                                                    color = Color(0xFF304B43)
-                                                )
-                                            )
-                                            Spacer(modifier = Modifier.width(15.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = if (isLearningMode) {
+                                            "NA"
+                                        } else {
+                                            deviceStatus?.let { status ->
+                                                "Every ${viewModel.formatTimeInterval(status.watering_frequency)}, Amount: ${status.watering_amount} ml"
+                                            } ?: "Not set"
+                                        },
+                                        style = TextStyle(
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Normal,
+                                            fontSize = 12.sp,
+                                            color = Color(0xFF304B43)
+                                        )
+                                    )
 
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(1.dp)
-                                                    .height(20.dp)
-                                                    .background(Color(0xFF304B43))
-                                            )
-                                            Spacer(modifier = Modifier.width(15.dp))
-                                            Text(
-                                                text = "Amount: $automaticWaterAmount ml",
-                                                style = TextStyle(
-                                                    fontFamily = FontFamily.Serif,
-                                                    fontWeight = FontWeight.Normal,
-                                                    fontSize = 13.sp,
-                                                    color = Color(0xFF304B43)
-                                                )
-                                            )
-                                        }
-                                    }
                                 }
 
                                 Icon(
@@ -687,6 +674,7 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                                     automaticWaterAmount = automaticWaterAmount.toInt(),
                                                     timeInterval = intervalInMinutes
                                                 )
+                                                viewModel.fetchDeviceStatus(2)
                                                 showAutomaticDialog = false
                                                 automaticWateringInterval = ""
                                                 automaticWaterAmount = ""

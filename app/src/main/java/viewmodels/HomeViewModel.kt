@@ -45,6 +45,9 @@ class HomeViewModel: ViewModel() {
     private val _heaterStatus = MutableLiveData<Boolean>()
     val heaterStatus: LiveData<Boolean> get() = _heaterStatus
 
+    private val _learningPlantName = MutableLiveData<String>()
+    val learningPlantName: LiveData<String> get() = _learningPlantName
+
 
     fun fetchSensorData(deviceId: Int) {
         viewModelScope.launch {
@@ -80,6 +83,7 @@ class HomeViewModel: ViewModel() {
                     _deviceStatus.postValue(response)
 
                     _wateringMode.postValue(response.watering_mode)
+                    _learningPlantName.postValue(response.plant_name)
                     _heaterStatus.postValue(response.heater_status.equals("ON", ignoreCase = true))
                     _ventStatus.postValue(response.vent_status.equals("OPEN", ignoreCase = true))
                 }

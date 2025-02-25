@@ -17,5 +17,8 @@ data class DeviceStatusResponse(
     val heating_mode: String?,
     val water_level: Float?,
     val heater_status: String,
-    val vent_status: String
+    val vent_status: String,
+    val plant_name: String,
+    val watering_amount: Int,
+    val watering_frequency: Int
 )

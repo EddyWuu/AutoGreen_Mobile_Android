@@ -20,11 +20,20 @@ object LearningModeManager {
     fun setLearningMode(value: Boolean) {
         _isLearning.value = value
         if (!value) {
-            // clear moist
+            // clear moisture level if not in learning mode
             _moistureLevel.value = null
         }
         println("Learning mode: $value, Moisture level cleared: ${!value}")
     }
+
+    // New function to update learning mode based on watering mode string
+    fun updateFromWateringMode(wateringMode: String) {
+        // If wateringMode equals "Learning", set learning mode to true, otherwise false (e.g., "Idle")
+        val isLearningMode = wateringMode.equals("Learning", ignoreCase = true)
+        setLearningMode(isLearningMode)
+    }
+
+
 
 //    fun setMoistureLevel(level: Int) {
 //        if (_isLearning.value) {

@@ -1,6 +1,8 @@
 package com.example.AutoGreen.network.viewmodels
 
+import DeviceStatusResponse
 import SetTempRequest
+import SetWaterFreqRequest
 import TemperatureRequest
 import WaterRequest
 import android.util.Log
@@ -9,10 +11,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.AutoGreen.network.RetrofitInstance
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.minutes
 
 class ControlsViewModel: ViewModel() {
+
+
+
 
     val snackbarMessage = MutableLiveData<String?>()
     val errorMessage = MutableLiveData<String>()
@@ -21,8 +29,25 @@ class ControlsViewModel: ViewModel() {
     private val _setTempValue = MutableLiveData<String>()
     val setTempValue: LiveData<String> = _setTempValue
 
+    private val _deviceStatus = MutableLiveData<DeviceStatusResponse>()
+    val deviceStatus: LiveData<DeviceStatusResponse> get() = _deviceStatus
+
     init {
         fetchSetTemperature()
+        fetchDeviceStatus(2)
+    }
+
+    fun fetchDeviceStatus(deviceId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitInstance.api.getDeviceStatus(deviceId)
+                }
+                _deviceStatus.postValue(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun fetchSetTemperature() {
@@ -162,7 +187,31 @@ class ControlsViewModel: ViewModel() {
                     )
                     val request = WaterRequest(command_body = commandBody)
                     val response = RetrofitInstance.api.sendAutomaticWater(deviceId, request)
+
                     if (response.isSuccessful) {
+                        val freqRequest = SetWaterFreqRequest(
+                            watering_amount = automaticWaterAmount,
+                            watering_frequency = timeInterval
+                        )
+                        _deviceStatus.postValue(
+                            _deviceStatus.value?.copy(
+                                watering_amount = automaticWaterAmount,
+                                watering_frequency = timeInterval
+                            )
+                        )
+                        fetchDeviceStatus(deviceId)
+                        snackbarMessage.postValue("Automatic water request sent successfully")
+
+                        val freqResponse = RetrofitInstance.api.updateSetFreq(deviceId, freqRequest)
+                        if (freqResponse.isSuccessful) {
+                            Log.d("ControlsViewModel", "Set frequency updated successfully")
+                        } else {
+                            Log.e(
+                                "ControlsViewModel",
+                                "Set frequency update failed: ${freqResponse.errorBody()?.string()}"
+                            )
+                        }
+
                         snackbarMessage.postValue("Automatic water request sent successfully")
                         Log.d("ControlsViewModel", "Success, yay")
                     } else {
@@ -209,4 +258,14 @@ class ControlsViewModel: ViewModel() {
             println("sendTemperatureAPI Time Taken: $timeTaken ms")
         }
     }
+
+    fun formatTimeInterval(minutes: Int): String {
+        return when {
+            minutes >= 10080 -> "${minutes / 10080} weeks" // 10080 minutes = 1 week
+            minutes >= 1440 -> "${minutes / 1440} days"  // 1440 minutes = 1 day
+            minutes >= 60 -> "${minutes / 60} hours"  // 60 minutes = 1 hour
+            else -> "$minutes minutes"
+        }
+    }
+
 }
