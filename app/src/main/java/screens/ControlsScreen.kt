@@ -489,10 +489,20 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         text = "Confirm",
                                         buttonColor = Color(0xFF304B43),
                                         onClick = {
-                                            if (isLearningMode) {
-                                                // Show learning mode warning first
-                                                showLearningModeWarning = true
-                                                pendingAction = {
+                                            if (viewModel.validateManualWaterAmount(waterAmount)) {
+                                                if (isLearningMode) {
+                                                    // Show learning mode warning first
+                                                    showLearningModeWarning = true
+                                                    pendingAction = {
+                                                        viewModel.sendManualWaterAPI(
+                                                            deviceId = 2,
+                                                            waterAmount = waterAmount.toInt()
+                                                        )
+                                                        showManualDialog = false
+                                                        waterAmount = ""
+                                                    }
+                                                } else {
+                                                    // Directly send the manual watering request
                                                     viewModel.sendManualWaterAPI(
                                                         deviceId = 2,
                                                         waterAmount = waterAmount.toInt()
@@ -500,14 +510,6 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                                     showManualDialog = false
                                                     waterAmount = ""
                                                 }
-                                            } else {
-                                                // Directly send the manual watering request
-                                                viewModel.sendManualWaterAPI(
-                                                    deviceId = 2,
-                                                    waterAmount = waterAmount.toInt()
-                                                )
-                                                showManualDialog = false
-                                                waterAmount = ""
                                             }
                                         }
                                     )
@@ -682,13 +684,31 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                         text = "Confirm",
                                         buttonColor = Color(0xFF304B43),
                                         onClick = {
-                                            if (isLearningMode) {
-                                                showLearningModeWarning = true
-                                                pendingAction = {
-                                                    val intervalInMinutes = viewModel.convertIntervalToMinutes(
-                                                        automaticWateringInterval.toInt(),
-                                                        selectedUnit
-                                                    )
+                                            if (viewModel.validateAutomaticWatering(automaticWateringInterval, automaticWaterAmount)) {
+                                                if (isLearningMode) {
+                                                    showLearningModeWarning = true
+                                                    pendingAction = {
+                                                        val intervalInMinutes =
+                                                            viewModel.convertIntervalToMinutes(
+                                                                automaticWateringInterval.toInt(),
+                                                                selectedUnit
+                                                            )
+                                                        viewModel.sendAutomaticWaterAPI(
+                                                            deviceId = 2,
+                                                            automaticWaterAmount = automaticWaterAmount.toInt(),
+                                                            timeInterval = intervalInMinutes
+                                                        )
+                                                        viewModel.fetchDeviceStatus(2)
+                                                        showAutomaticDialog = false
+                                                        automaticWateringInterval = ""
+                                                        automaticWaterAmount = ""
+                                                    }
+                                                } else {
+                                                    val intervalInMinutes =
+                                                        viewModel.convertIntervalToMinutes(
+                                                            automaticWateringInterval.toInt(),
+                                                            selectedUnit
+                                                        )
                                                     viewModel.sendAutomaticWaterAPI(
                                                         deviceId = 2,
                                                         automaticWaterAmount = automaticWaterAmount.toInt(),
@@ -699,20 +719,6 @@ fun ControlsScreen(viewModel: ControlsViewModel, onSheetVisibilityChanged: (Bool
                                                     automaticWateringInterval = ""
                                                     automaticWaterAmount = ""
                                                 }
-                                            } else {
-                                                val intervalInMinutes = viewModel.convertIntervalToMinutes(
-                                                    automaticWateringInterval.toInt(),
-                                                    selectedUnit
-                                                )
-                                                viewModel.sendAutomaticWaterAPI(
-                                                    deviceId = 2,
-                                                    automaticWaterAmount = automaticWaterAmount.toInt(),
-                                                    timeInterval = intervalInMinutes
-                                                )
-                                                viewModel.fetchDeviceStatus(2)
-                                                showAutomaticDialog = false
-                                                automaticWateringInterval = ""
-                                                automaticWaterAmount = ""
                                             }
                                         }
                                     )

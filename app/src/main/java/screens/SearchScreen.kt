@@ -210,7 +210,7 @@ fun PlantDetailsDialog(plant: PlantInfo, onDismiss: () -> Unit, viewModel: Searc
                 Text("Confirm Mode Switch")
             },
             text = {
-                Text("By pressing confirm, you will switch to learning mode. Do you want to proceed? (You can change back to manual/automatic mode in the controls screen)")
+                Text("By pressing confirm, you will switch to learning mode, and will be locked out of other commands for 10 hours in order for Learning mode to kick in. Do you want to proceed? (You can change back to manual/automatic mode in the controls screen after 10 hours)")
             },
             confirmButton = {
                 Row(
